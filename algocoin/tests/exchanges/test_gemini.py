@@ -96,3 +96,27 @@ class TestExchange:
         assert(res1['type'] == 'limit')
         assert(res1['post_only'] == '1')
         assert(res2['time_in_force'] == 'FOK')
+
+    def test_GeminiHelpers_reasonToTradeType(self):
+        from ...exchanges.gemini import GeminiExchange
+        from ...enums import TickType
+        assert GeminiExchange.reasonToTradeType('CANCEL') == TickType.DONE
+        assert GeminiExchange.reasonToTradeType('PLACE') == TickType.OPEN
+        assert GeminiExchange.reasonToTradeType('INITIAL') == TickType.OPEN
+
+    def test_GeminiHelpers_strToTradeType(self):
+        from ...exchanges.gemini import GeminiExchange
+        from ...enums import TickType
+        assert GeminiExchange.strToTradeType('trade') == TickType.TRADE
+        assert GeminiExchange.strToTradeType('change') == TickType.CHANGE
+        assert GeminiExchange.strToTradeType('heartbeat') == TickType.HEARTBEAT
+        assert GeminiExchange.strToTradeType('flarg') == TickType.ERROR
+
+    def test_GeminiHelpers_currencyPairToString(self):
+        from ...exchanges.gemini import GeminiExchange
+        from ...enums import PairType
+        assert GeminiExchange.currencyPairToString(PairType.BTCUSD) == 'BTCUSD'
+        assert GeminiExchange.currencyPairToString(PairType.ETHUSD) == 'ETHUSD'
+        assert GeminiExchange.currencyPairToString(PairType.ZECUSD) == 'ZECUSD'
+        assert GeminiExchange.currencyPairToString(PairType.ETHBTC) == 'ETHBTC'
+        assert GeminiExchange.currencyPairToString(PairType.ZECETH) == 'ZECETH'

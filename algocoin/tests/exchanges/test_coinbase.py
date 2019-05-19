@@ -23,6 +23,7 @@ class TestExchange:
     def test_init(self):
         from ...config import ExchangeConfig
         from ...exchanges.coinbase import CoinbaseExchange
+        from ...exchanges.coinbase import CoinbaseExchange
         from ...enums import ExchangeType
 
         with patch('os.environ'), patch('gdax.AuthenticatedClient') as m:
@@ -118,3 +119,36 @@ class TestExchange:
         assert(res1['type'] == 'limit')
         assert(res1['post_only'] == '1')
         assert(res2['time_in_force'] == 'FOK')
+
+    def test_CoinbaseHelpers_strToTradeType(self):
+        from ...exchanges.coinbase import CoinbaseExchange
+        from ...enums import TickType
+        assert CoinbaseExchange.strToTradeType('match') == TickType.TRADE
+        assert CoinbaseExchange.strToTradeType('received') == TickType.RECEIVED
+        assert CoinbaseExchange.strToTradeType('open') == TickType.OPEN
+        assert CoinbaseExchange.strToTradeType('done') == TickType.DONE
+        assert CoinbaseExchange.strToTradeType('change') == TickType.CHANGE
+        assert CoinbaseExchange.strToTradeType('heartbeat') == TickType.HEARTBEAT
+        assert CoinbaseExchange.strToTradeType('flarg') == TickType.ERROR
+
+    def test_CoinbaseHelpers_currencyToString(self):
+        from ...exchanges.coinbase import CoinbaseExchange
+        from ...enums import CurrencyType
+        assert CoinbaseExchange.currencyToString(CurrencyType.BTC) == 'BTC'
+        assert CoinbaseExchange.currencyToString(CurrencyType.ETH) == 'ETH'
+        assert CoinbaseExchange.currencyToString(CurrencyType.LTC) == 'LTC'
+        assert CoinbaseExchange.currencyToString(CurrencyType.BCH) == 'BCH'
+
+    def test_CoinbaseHelpers_currencyPairToString(self):
+        from ...exchanges.coinbase import CoinbaseExchange
+        from ...enums import PairType
+        assert CoinbaseExchange.currencyPairToString(PairType.BTCUSD) == 'BTC-USD'
+        assert CoinbaseExchange.currencyPairToString(PairType.BTCETH) == 'BTC-ETH'
+        assert CoinbaseExchange.currencyPairToString(PairType.BTCLTC) == 'BTC-LTC'
+        assert CoinbaseExchange.currencyPairToString(PairType.BTCBCH) == 'BTC-BCH'
+        assert CoinbaseExchange.currencyPairToString(PairType.ETHUSD) == 'ETH-USD'
+        assert CoinbaseExchange.currencyPairToString(PairType.LTCUSD) == 'LTC-USD'
+        assert CoinbaseExchange.currencyPairToString(PairType.BCHUSD) == 'BCH-USD'
+        assert CoinbaseExchange.currencyPairToString(PairType.ETHBTC) == 'ETH-BTC'
+        assert CoinbaseExchange.currencyPairToString(PairType.LTCBTC) == 'LTC-BTC'
+        assert CoinbaseExchange.currencyPairToString(PairType.BCHBTC) == 'BCH-BTC'
