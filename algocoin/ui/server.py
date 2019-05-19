@@ -35,6 +35,7 @@ class ServerApplication(tornado.web.Application):
                                                                           }}),
             (r"/api/json/v1/messages", ServerMessagesHandler, {'trading_engine': trading_engine,
                                                                'psp_kwargs': {'view': 'y_line',
+                                                                              'aggregates': {'price': 'last'},
                                                                               'columns': 'price',
                                                                               'rowpivots': 'time',
                                                                               'columnpivots': ['type', 'side']}}),

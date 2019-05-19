@@ -64,7 +64,7 @@ class ServerMessagesHandler(ServerMessagesMixin, tornado.web.RequestHandler):
 
     def get(self):
         type = self.get_argument('type', None)
-        page = int(self.get_argument('page', 0))
+        page = int(self.get_argument('page', 1))
         pairtype = self.get_argument('pair', '')
         self.write(self.get_data(type=type, page=page, pairtype=pairtype, **self.psp_kwargs))
 

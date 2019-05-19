@@ -6,7 +6,7 @@ from ...structs import Instrument
 
 
 class ServerOrdersMixin(PerspectiveHTTPMixin):
-    def get_data(self, type=None, exchange=None, page=0, pairtype=None, **psp_kwargs):
+    def get_data(self, type=None, exchange=None, page=1, pairtype=None, **psp_kwargs):
         try:
             type = TickType(type)
         except ValueError:
@@ -63,6 +63,6 @@ class ServerOrdersHandler(ServerOrdersMixin, tornado.web.RequestHandler):
 
     def get(self):
         type = self.get_argument('type', None)
-        page = int(self.get_argument('page', 0))
+        page = int(self.get_argument('page', 1))
         pairtype = self.get_argument('pair', '')
         self.write(self.get_data(type=type, page=page, pairtype=pairtype, **self.psp_kwargs))
