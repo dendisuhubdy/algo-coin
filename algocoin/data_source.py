@@ -52,11 +52,11 @@ class StreamingDataSource(DataSource):
                            TickType.CONTINUE: []}
 
     @abstractmethod
-    def run(self, engine):
+    async def run(self, engine) -> None:
         '''run the exchange'''
 
     @abstractmethod
-    def close(self):
+    async def close(self) -> None:
         '''close the websocket'''
 
     @abstractmethod

@@ -1,89 +1,83 @@
 import ccxt
-from .config import ExchangeConfig
-from .exchange import Exchange
-from .enums import TradingType, ExchangeType
-from .structs import TradeRequest, TradeResponse
-from .utils import get_keys_from_environment, trade_req_to_params
-from .logging import LOG as log
+import pandas as pd
+from functools import lru_cache
+from .data_source import RestAPIDataSource
+from .enums import PairType, TradingType, ExchangeType
+from .structs import TradeRequest, TradeResponse, Account
+from .utils import get_keys_from_environment, str_to_currency_type
 
 
-class OrderEntry(object):
-    def __init__(self, options: ExchangeConfig, exchange: Exchange):
-        # TODO multi exchange
-        self.exchange = exchange
+def exchange_type_to_ccxt_client(exchange_type):
+    if exchange_type == ExchangeType.COINBASE:
+        return ccxt.coinbasepro
+    elif exchange_type == ExchangeType.GEMINI:
+        return ccxt.gemini
+    elif exchange_type == ExchangeType.POLONIEX:
+        return ccxt.poloniex
 
-        if options.exchange_type == ExchangeType.GEMINI:
-            exchange_name = 'gemini'
-        else:
-            raise Exception('OrderEntry object cannot be instantiated for exchange %s' % options.exchange_type)
 
+class OrderEntry(RestAPIDataSource):
+    @lru_cache(None)
+    def oe_client(self):
+        options = self.options()
         if options.trading_type == TradingType.SANDBOX:
-            self._key, self._secret, self._passphrase = get_keys_from_environment(exchange_name.upper() + '_SANDBOX')
+            key, secret, passphrase = get_keys_from_environment(self.exchange().value + '_SANDBOX')
         else:
-            self._key, self._secret, self._passphrase = get_keys_from_environment(exchange_name.upper())
+            key, secret, passphrase = get_keys_from_environment(self.exchange().value)
 
-        self._client = ccxt.__getattribute__(exchange_name)(({
-            'apiKey': self._key,
-            'secret': self._secret,
-        }))
+        return exchange_type_to_ccxt_client(self.exchange())({
+            'apiKey': key,
+            'secret': secret,
+            'password': passphrase
+            })
 
-        if options.trading_type == TradingType.LIVE:
-            self._client.urls['api'] = self._client.urls['test']
+    def accounts(self):
+        client = self.oe_client()
+        if not client:
+            return {}
+        balances = client.fetch_balance()
 
-    def orderBook(self, symbol, level=1):
+        accounts = []
+
+        for jsn in balances['info']:
+            currency = str_to_currency_type(jsn['currency'])
+            if 'balance' in jsn:
+                balance = float(jsn['balance'])
+            elif 'amount' in jsn:
+                balance = float(jsn['amount'])
+
+            id = jsn.get('id', jsn['currency'])
+
+            account = Account(id=id, currency=currency, balance=balance, exchange=self.exchange())
+            accounts.append(account)
+        return accounts
+
+    def currencyPairToStringCCXT(self, cur: PairType) -> str:
+        return cur.value[0].value + '/' + cur.value[1].value
+
+    def historical(self, timeframe='1m', since=None, limit=None):
+        '''get historical data (for backtesting)'''
+        client = self.oe_client()
+        dfs = [{'pair': str(symbol), 'exchange': self.exchange().value, 'data': client.fetch_ohlcv(symbol=self.currencyPairToStringCCXT(symbol), timeframe=timeframe, since=since, limit=limit)}
+               for symbol in self.options().currency_pairs]
+        df = pd.io.json.json_normalize(dfs, 'data', ['pair', 'exchange'])
+        df.columns = ['timestamp', 'open', 'high', 'low', 'close', 'volume', 'pair', 'exchange']
+        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
+        df.set_index(['timestamp', 'pair'], inplace=True)
+        df.sort_index(inplace=True)
+        return df
+
+    def orderBook(self, level=1):
         '''get order book'''
-        # TODO process symbol to string
-        if level == 1:
-            return self._client.fetchOrderBook(symbol)
-        else:
-            return self._client.fetchL2OrderBook(symbol)
+        return self.oe_client().getProductOrderBook(level=level)
 
     def buy(self, req: TradeRequest) -> TradeResponse:
         '''execute a buy order'''
-        params = trade_req_to_params(req)
-        log.warn("Buy params: %s", str(params))
-        # order = self._client.create_order(**params)
-
-        # def create_order(self, symbol, type, side, amount, price=None, params={}):
-
-        # if order.get('result') == 'error':
-        #     log.critical("Order Error - %s", order)
-        #     raise Exception('Order Error!')
-
-        # executed_amount = float(order['executed_amount'])
-        # remaining_amount = float(order['remaining_amount'])
-        # avg_execution_price = float(order['avg_execution_price'])
-
-        # slippage = float(params['price'])-avg_execution_price if executed_amount > 0.0 else 0.0
-        # txn_cost = 0.0
-        # status = TradeResult.NONE
-
-        # if (req.volume - executed_amount) < 0.001:
-        #     status = TradeResult.FILLED
-        # elif order.get('is_cancelled', ''):
-        #     status = TradeResult.REJECTED
-        # elif remaining_amount > 0.0:
-        #     status = TradeResult.PARTIAL
-        # else:
-        #     status = TradeResult.PENDING
-
-        # resp = TradeResponse(request=req,
-        #                      side=req.side,
-        #                      volume=executed_amount,
-        #                      price=avg_execution_price,
-        #                      currency=req.currency,
-        #                      slippage=slippage,
-        #                      transaction_cost=txn_cost,
-        #                      status=status,
-        #                      order_id=order['order_id'],
-        #                      remaining=remaining_amount,
-        #                      )
-        # return resp
+        raise NotImplementedError()
 
     def sell(self, req: TradeRequest) -> TradeResponse:
         '''execute a sell order'''
-        params = self.exchange.tradeReqToParams(req)
-        log.warn("Sell params: %s", str(params))
+        raise NotImplementedError()
 
     def cancel(self, resp: TradeResponse):
         raise NotImplementedError()

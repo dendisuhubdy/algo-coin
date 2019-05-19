@@ -1,19 +1,17 @@
 import json
-import gdax
 from functools import lru_cache
-from websocket import create_connection
 from ..config import ExchangeConfig
-from ..define import EXCHANGE_MARKET_DATA_ENDPOINT
-from ..enums import ExchangeType, OrderType, OrderSubType, PairType, TickType, ChangeReason, TradingType
+from ..enums import ExchangeType, OrderType, PairType, TickType
 from ..exchange import Exchange
-from ..logging import LOG as log
-from ..structs import MarketData, Instrument
-from ..utils import parse_date, str_to_currency_pair_type, str_to_side, str_to_order_type, get_keys_from_environment
-from .order_entry import CCXTOrderEntryMixin
-from .websockets import WebsocketMixin
+from ..structs import MarketData
 
 
-class KrakenWebsocketMixin(WebsocketMixin):
+class KrakenExchange(Exchange):
+    def __init__(self, exchange_type: ExchangeType, options: ExchangeConfig) -> None:
+        super(KrakenExchange, self).__init__(exchange_type, options)
+        self._last = None
+        self._orders = {}
+
     @lru_cache(None)
     def subscription(self):
         return [json.dumps({
@@ -44,10 +42,3 @@ class KrakenWebsocketMixin(WebsocketMixin):
 
     def orderTypeToString(self, typ: OrderType) -> str:
         raise NotImplementedError()
-
-
-class KrakenExchange(KrakenWebsocketMixin, CCXTOrderEntryMixin, Exchange):
-    def __init__(self, exchange_type: ExchangeType, options: ExchangeConfig) -> None:
-        super(KrakenExchange, self).__init__(exchange_type, options)
-        self._last = None
-        self._orders = {}

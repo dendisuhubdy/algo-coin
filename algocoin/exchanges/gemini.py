@@ -1,9 +1,9 @@
 import aiohttp
 import asyncio
 import json
+from aiostream import stream
 from datetime import datetime
 from functools import lru_cache
-from websocket import create_connection, WebSocketTimeoutException
 from ..config import ExchangeConfig
 from ..define import EXCHANGE_MARKET_DATA_ENDPOINT
 from ..enums import Side, ExchangeType, OrderType, OrderSubType, PairType, TickType, ChangeReason
@@ -11,11 +11,9 @@ from ..exchange import Exchange
 from ..logging import LOG as log
 from ..structs import MarketData, Instrument, TradeResponse
 from ..utils import str_to_currency_pair_type, str_to_side
-from .order_entry import CCXTOrderEntryMixin
-from .websockets import WebsocketMixin
 
 
-class GeminiWebsocketMixin(WebsocketMixin):
+class GeminiExchange(Exchange):
     @lru_cache(None)
     def subscription(self):
         return [json.dumps({"type": "subscribe", "product_id": self.currencyPairToString(x)}) for x in self.options().currency_pairs]
@@ -28,74 +26,69 @@ class GeminiWebsocketMixin(WebsocketMixin):
         options = self.options()
         session = aiohttp.ClientSession()
 
-        while True:
-            # startup and redundancy
-            log.info('Starting....')
-            self.ws = asyncio.gather(session.ws_connect(EXCHANGE_MARKET_DATA_ENDPOINT(self._exchange_type, options.trading_type) % x) for x in self.subscription())
-            for x in self.subscription():
-                log.info('Sending Subscription %s' % x)
+        # startup and redundancy
+        log.info('Starting....')
+        self.ws = [await session.ws_connect(EXCHANGE_MARKET_DATA_ENDPOINT(self.exchange(), options.trading_type) % x) for x in self.subscription()]
 
-            for ws in self.ws:
-                ws.settimeout(1)
+        # set subscription for each ws
+        for i, sub in enumerate(self.subscription()):
+            self.ws[i]._subscription = sub
+            log.info(f'Sending Subscription {sub}')
 
-            log.info('Connected!')
-            log.info('')
-            log.critical(f'Starting algo trading: {self._exchange_type}')
-            try:
-                while True:
-                    await self.receive()
+        log.info(f'Connected: {self.exchange()}')
+        log.info('')
+        log.critical(f'Starting algo trading: {self.exchange()}')
+        try:
+            while True:
+                await self.receive()
 
-            except KeyboardInterrupt:
-                log.critical('Terminating program')
-                engine.terminate()
-                return
-        return self._accounts
+        except KeyboardInterrupt:
+            log.critical('Terminating program')
+            engine.terminate()
+            return
 
-    def receive(self) -> None:
+    async def receive(self) -> None:
         '''gemini has its own receive method because it uses 1 connection per symbol instead of multiplexing'''
-        jsns = []
-        for i, x in enumerate(self.subscription()):
-            try:
-                ret = self.ws[i].recv()
-                jsns.append((x, json.loads(ret)))
-            except WebSocketTimeoutException:
-                jsns.append((x, None))
+        async def get_data_sub_pair(ws, sub=None):
+            async for ret in ws:
+                yield ret, sub
 
-        for pair, jsn in jsns:
-            if jsn:
-                if jsn.get('type') == 'heartbeat':
-                    pass
-                else:
-                    for item in jsn.get('events'):
-                        item['symbol'] = pair
-                        res = self.tickToData(item)
+        async for val in stream.merge(*[get_data_sub_pair(self.ws[i], sub) for i, sub in enumerate(self.subscription())]):
+            pair = val[1]
+            jsn = json.loads(val[0].data)
+            if jsn.get('type') == 'heartbeat':
+                pass
+            else:
+                for item in jsn.get('events'):
+                    item['symbol'] = pair
+                    res = self.tickToData(item)
 
-                        if not self._running:
-                            pass
+                    if not self._running:
+                        pass
 
-                        if res.type != TickType.HEARTBEAT:
-                            if res.type not in self._messages:
-                                self._messages[res.type] = [res]
-                            else:
-                                self._messages[res.type].append(res)
-                            self._messages_all.append(res)
-
-                        if res.type == TickType.TRADE:
-                            self._last = res
-                            self.callback(TickType.TRADE, res)
-                        elif res.type == TickType.RECEIVED:
-                            self.callback(TickType.RECEIVED, res)
-                        elif res.type == TickType.OPEN:
-                            self.callback(TickType.OPEN, res)
-                        elif res.type == TickType.DONE:
-                            self.callback(TickType.DONE, res)
-                        elif res.type == TickType.CHANGE:
-                            self.callback(TickType.CHANGE, res)
-                        elif res.type == TickType.HEARTBEAT:
-                            # TODO anything?
-                            pass
+                    if res.type != TickType.HEARTBEAT:
+                        if res.type not in self._messages:
+                            self._messages[res.type] = [res]
                         else:
-                            self.callback(TickType.ERROR, res)
+                            self._messages[res.type].append(res)
+                        self._messages_all.append(res)
+
+                    if res.type == TickType.TRADE:
+                        self._last = res
+                        self.callback(TickType.TRADE, res)
+                    elif res.type == TickType.RECEIVED:
+                        self.callback(TickType.RECEIVED, res)
+                    elif res.type == TickType.OPEN:
+                        self.callback(TickType.OPEN, res)
+                    elif res.type == TickType.DONE:
+                        self.callback(TickType.DONE, res)
+                    elif res.type == TickType.CHANGE:
+                        self.callback(TickType.CHANGE, res)
+                    elif res.type == TickType.HEARTBEAT:
+                        # TODO anything?
+                        pass
+                    else:
+                        self.callback(TickType.ERROR, res)
 
     def cancel(self, resp: TradeResponse):
         '''cancel an order'''
@@ -145,7 +138,7 @@ class GeminiWebsocketMixin(WebsocketMixin):
                          remaining=remaining_volume,
                          reason=reason,
                          side=side,
-                         exchange=self._exchange_type,
+                         exchange=self.exchange(),
                          sequence=sequence)
         return ret
 
@@ -185,10 +178,3 @@ class GeminiWebsocketMixin(WebsocketMixin):
 
     def orderTypeToString(self, typ: OrderType) -> str:
         return type.value.lower()
-
-
-class GeminiExchange(GeminiWebsocketMixin, CCXTOrderEntryMixin, Exchange):
-    def __init__(self, exchange_type: ExchangeType, options: ExchangeConfig) -> None:
-        super(GeminiExchange, self).__init__(exchange_type, options)
-        self._type = ExchangeType.GEMINI
-        self._last = None

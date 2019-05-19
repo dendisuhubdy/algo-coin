@@ -1,19 +1,13 @@
 import json
 from datetime import datetime
 from functools import lru_cache
-from websocket import create_connection
-from ..config import ExchangeConfig
-from ..define import EXCHANGE_MARKET_DATA_ENDPOINT
-from ..enums import ExchangeType, OrderType, OrderSubType, PairType, TickType, ChangeReason
+from ..enums import OrderType, OrderSubType, PairType, TickType, ChangeReason
 from ..exchange import Exchange
-from ..logging import LOG as log
 from ..structs import MarketData, Instrument
 from ..utils import parse_date, str_to_currency_pair_type, str_to_side, str_to_order_type
-from .order_entry import CCXTOrderEntryMixin
-from .websockets import WebsocketMixin
 
 
-class CoinbaseWebsocketMixin(WebsocketMixin):
+class CoinbaseExchange(Exchange):
     @lru_cache(None)
     def subscription(self):
         return [json.dumps({"type": "subscribe", "product_id": self.currencyPairToString(x)}) for x in self.options().currency_pairs]
@@ -56,7 +50,7 @@ class CoinbaseWebsocketMixin(WebsocketMixin):
                          remaining=remaining_volume,
                          reason=reason,
                          side=side,
-                         exchange=self._exchange_type,
+                         exchange=self.exchange(),
                          order_type=order_type,
                          sequence=sequence)
         return ret
@@ -88,9 +82,5 @@ class CoinbaseWebsocketMixin(WebsocketMixin):
     def orderTypeToString(self, typ: OrderType) -> str:
         return type.value.lower()
 
-
-class CoinbaseExchange(CoinbaseWebsocketMixin, CCXTOrderEntryMixin, Exchange):
-    def __init__(self, exchange_type: ExchangeType, options: ExchangeConfig) -> None:
-        super(CoinbaseExchange, self).__init__(exchange_type, options)
-        self._last = None
-        self._orders = {}
+    def reasonToTradeType(self, s: str) -> TickType:
+        pass

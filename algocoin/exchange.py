@@ -2,20 +2,16 @@ import aiohttp
 import json
 from functools import lru_cache
 from .config import ExchangeConfig
-from .data_source import StreamingDataSource, RestAPIDataSource
-from .logging import LOG as log
 from .enums import TickType, ExchangeType
+from .order_entry import OrderEntry
+from .market_data import MarketData
 
 
-class Exchange(StreamingDataSource, RestAPIDataSource):
+class Exchange(MarketData, OrderEntry):
     def __init__(self, exchange_type: ExchangeType, options: ExchangeConfig) -> None:
         super(Exchange, self).__init__()
         self._options = options
-        self._exchange_type = exchange_type
-        self._lastseqnum = -1
-        self._missingseqnum = set()  # type: set
-        self._seqnum_enabled = False
-
+        self._exchange = exchange_type
         self._pending_orders = {}
         self._messages = {}
         self._messages_all = []
@@ -24,25 +20,9 @@ class Exchange(StreamingDataSource, RestAPIDataSource):
     def options(self) -> ExchangeConfig:
         return self._options
 
-    def seqnum(self, number: int) -> None:
-        if self._lastseqnum == -1:
-            # first seen
-            self._lastseqnum = number
-            return
-
-        if number != self._lastseqnum + 1 and number not in self._missingseqnum:
-            log.error('ERROR: Missing sequence number/s: %s' % ','.join(
-                str(x) for x in range(self._lastseqnum+1, number+1)))
-            self._missingseqnum.update(
-                x for x in range(self._lastseqnum+1, number+1))
-            log.error(self._missingseqnum)
-
-        if number in self._missingseqnum:
-            self._missingseqnum.remove(number)
-            log.warning('INFO: Got out of order data for seqnum: %s' % number)
-
-        else:
-            self._lastseqnum = number
+    @lru_cache(None)
+    def exchange(self) -> ExchangeType:
+        return self._exchange
 
     async def receive(self) -> None:
         async for msg in self.ws:
