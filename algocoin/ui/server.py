@@ -5,6 +5,7 @@ import tornado.ioloop
 import tornado.web
 from .handlers.accounts import ServerAccountsHandler
 from .handlers.messages import ServerMessagesHandler, ServerMessagesWSHandler
+from .handlers.orders import ServerOrdersHandler
 from .handlers.html import HTMLOpenHandler
 
 
@@ -25,6 +26,13 @@ class ServerApplication(tornado.web.Application):
         super(ServerApplication, self).__init__([
             (r"/", HTMLOpenHandler, {'template': 'index.html'}),
             (r"/api/json/v1/accounts", ServerAccountsHandler, {'trading_engine': trading_engine}),
+            (r"/api/json/v1/orders", ServerOrdersHandler, {'trading_engine': trading_engine,
+                                                           'psp_kwargs': {'view': 'hypergrid',
+                                                                          'columns': ['time', 'volume', 'price', 'instrument'],
+                                                                          'columnpivots': ['side'],
+                                                                          'sort': ['price', 'asc'],
+                                                                          'filters': ['reason', '==', 'ChangeReason.OPENED'],
+                                                                          }}),
             (r"/api/json/v1/messages", ServerMessagesHandler, {'trading_engine': trading_engine,
                                                                'psp_kwargs': {'view': 'y_line',
                                                                               'columns': 'price',

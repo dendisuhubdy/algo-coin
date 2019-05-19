@@ -28,11 +28,17 @@ function main(): void {
   const data = new PerspectiveDataLoader("Data");
   dock.addWidget(data);
 
+  const bidask = new PerspectiveDataLoader("Orders");
+  dock.addWidget(bidask);
+
   const dataLoader = new DataLoader([data], "/api/json/v1/messages", {pair: "BTCUSD", type: "TRADE"});
   dataLoader.start();
 
   const accountsLoader = new DataLoader([accounts], "/api/json/v1/accounts");
   accountsLoader.start();
+
+  const bidLoader = new DataLoader([bidask], "/api/json/v1/orders", {pair: "BTCUSD", type: "CHANGE"});
+  bidLoader.start();
 
   /* save/restore layouts */
   // let savedLayouts: DockPanel.ILayoutConfig[] = [];
@@ -50,7 +56,7 @@ function main(): void {
   main.addWidget(dock);
 
   /* Title bar */
-  const header = new Header([accounts, data]);
+  const header = new Header([accounts, data, bidask]);
 
   window.onresize = () => { main.update(); };
   Widget.attach(header, document.body);

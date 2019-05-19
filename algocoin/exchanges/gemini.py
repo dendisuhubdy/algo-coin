@@ -54,7 +54,7 @@ class GeminiExchange(Exchange):
                 yield ret, sub
 
         async for val in stream.merge(*[get_data_sub_pair(self.ws[i], sub) for i, sub in enumerate(self.subscription())]):
-            pair = val[1]
+            pair = json.loads(val[1]).get('product_id')
             jsn = json.loads(val[0].data)
             if jsn.get('type') == 'heartbeat':
                 pass
@@ -100,25 +100,25 @@ class GeminiExchange(Exchange):
         self._client.cancel_all_active_orders()
 
     def tickToData(self, jsn: dict) -> MarketData:
-        # print(jsn)
         time = datetime.now()
         price = float(jsn.get('price', 'nan'))
         reason = jsn.get('reason', '')
-        volume = float(jsn.get('amount', 'nan'))
+        volume = float(jsn.get('amount', 0.0))
         typ = self.strToTradeType(jsn.get('type'))
+        delta = float(jsn.get('delta', 0.0))
 
         if typ == TickType.CHANGE and not volume:
             delta = float(jsn.get('delta', 'nan'))
             volume = delta
-            typ = self.reasonToTradeType(reason)
+            # typ = self.reasonToTradeType(reason)
 
         side = str_to_side(jsn.get('side', ''))
         remaining_volume = float(jsn.get('remaining', 'nan'))
 
         if reason == 'canceled':
             reason = ChangeReason.CANCELLED
-        elif reason == '':
-            reason = ChangeReason.NONE
+        elif reason == 'place' or reason == 'initial':
+            reason = ChangeReason.OPENED
         else:
             reason = ChangeReason.NONE
 
@@ -127,7 +127,7 @@ class GeminiExchange(Exchange):
         if 'symbol' not in jsn:
             return
 
-        currency_pair = str_to_currency_pair_type(json.loads(jsn.get('symbol')).get('product_id'))
+        currency_pair = str_to_currency_pair_type(jsn.get('symbol'))
         instrument = Instrument(underlying=currency_pair)
 
         ret = MarketData(time=time,

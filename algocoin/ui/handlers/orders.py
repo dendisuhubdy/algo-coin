@@ -1,13 +1,12 @@
 import tornado.web
 import tornado.websocket
-import ujson
 from perspective import PerspectiveHTTPMixin
 from ...enums import TickType, PairType
 from ...structs import Instrument
 
 
-class ServerMessagesMixin(PerspectiveHTTPMixin):
-    def get_data(self, type=None, exchange=None, page=1, pairtype=None, **psp_kwargs):
+class ServerOrdersMixin(PerspectiveHTTPMixin):
+    def get_data(self, type=None, exchange=None, page=0, pairtype=None, **psp_kwargs):
         try:
             type = TickType(type)
         except ValueError:
@@ -48,11 +47,11 @@ class ServerMessagesMixin(PerspectiveHTTPMixin):
                 msg['instrument'] = msg['instrument']['underlying'] + ',' + msg['instrument']['type']
 
         psp_kwargs['data'] = msgs
-        super(ServerMessagesMixin, self).loadData(**psp_kwargs)
-        return super(ServerMessagesMixin, self).getData()
+        super(ServerOrdersMixin, self).loadData(**psp_kwargs)
+        return super(ServerOrdersMixin, self).getData()
 
 
-class ServerMessagesHandler(ServerMessagesMixin, tornado.web.RequestHandler):
+class ServerOrdersHandler(ServerOrdersMixin, tornado.web.RequestHandler):
     '''Server Handler
     Extends:
         tornado.web.RequestHandler
@@ -67,28 +66,3 @@ class ServerMessagesHandler(ServerMessagesMixin, tornado.web.RequestHandler):
         page = int(self.get_argument('page', 0))
         pairtype = self.get_argument('pair', '')
         self.write(self.get_data(type=type, page=page, pairtype=pairtype, **self.psp_kwargs))
-
-
-class ServerMessagesWSHandler(ServerMessagesMixin, tornado.web.RequestHandler):
-    '''Server Handler
-    Extends:
-        tornado.web.RequestHandler
-    '''
-
-    def initialize(self, trading_engine):
-        self.te = trading_engine
-
-    def open(self):
-        print('ws opened')
-
-    def on_message(self, message):
-        type = self.get_argument('type', None)
-        page = int(self.get_argument('page', 1))
-        pairtype = self.get_argument('pair', '')
-
-        # TODO if page <0, stream
-        msgs = self.get_data(type=type, page=page, pairtype=pairtype)
-        self.write_message(ujson.dumps(msgs))
-
-    def on_close(self):
-        pass
