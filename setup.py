@@ -30,7 +30,7 @@ setup(
     download_url='https://github.com/timkpaine/algo-coin/archive/v0.0.3.tar.gz',
     author='Tim Paine',
     author_email='timothy.k.paine@gmail.com',
-    license='GPL',
+    license='Apache 2.0',
     install_requires=requires,
 
     classifiers=[
