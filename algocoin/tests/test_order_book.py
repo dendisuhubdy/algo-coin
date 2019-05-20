@@ -1,20 +1,19 @@
-import pytest
 import random
 from datetime import datetime
 
-from algocoin.order_book import OrderBook
-from algocoin.structs import MarketData, Instrument
-from algocoin.enums import Side, \
-                           OptionSide, \
-                           CurrencyType, \
-                           PairType, \
-                           OrderType, \
-                           OrderSubType, \
-                           TickType, \
-                           TradeResult, \
-                           InstrumentType, \
-                           ChangeReason, \
-                           ExchangeType
+from algocoin.lib.order_book import OrderBook
+from algocoin.lib.structs import MarketData, Instrument
+from algocoin.lib.enums import Side, \
+                               OptionSide, \
+                               ExchangeType, \
+                               CurrencyType, \
+                               PairType, \
+                               OrderType, \
+                               OrderSubType, \
+                               TickType, \
+                               TradeResult, \
+                               InstrumentType, \
+                               ChangeReason
 
 
 def generateInstruments(pairs):
@@ -117,26 +116,48 @@ def generateMarketData(count, instruments=None):
     return ret
 
 
-class TestDataSource:
-    def test_order_book(self):
-        pairs = [PairType.BTCUSD, PairType.ETHUSD]
-        instruments = generateInstruments(pairs)
+def simulation1():
+    pairs = [PairType.BTCUSD, PairType.ETHUSD]
+    instruments = generateInstruments(pairs)
+    ob = OrderBook(instruments)
+    for item in initialMarketData(50, instruments):
+        ob.push(item)
+    print(str(ob))
 
-        ob = OrderBook(instruments)
+    for item in generateMarketData(50, instruments):
+        ob.push(item)
 
-        for item in initialMarketData(50, instruments):
-            ob.push(item)
+    print(str(ob))
 
-        print(str(ob))
 
-    @pytest.mark.skip(reason="no way of currently testing this")
-    def test_order_book_sequence(self):
-        pairs = [PairType.BTCUSD]
-        instruments = generateInstruments(pairs)
-        ob = OrderBook(instruments)
+def simulation2():
+    pairs = [PairType.BTCUSD]
+    instruments = generateInstruments(pairs)
+    ob = OrderBook(instruments)
 
-        p = 0.0
-        while p < 2.1:
+    p = 0.0
+    while p < 2.1:
+        m = MarketData(time=datetime.now(),
+                       volume=1.0,
+                       price=p,
+                       type=TickType.OPEN,
+                       instrument=instruments[0],
+                       side=Side.BUY,
+                       remaining=0.0,
+                       reason=ChangeReason.NONE,
+                       sequence=-1,
+                       exchange=ExchangeType.COINBASE,
+                       order_type=OrderType.NONE)
+        if p > 1.0:
+            m.side = Side.SELL
+        ob.push(m)
+        p += .1
+
+    print(ob)
+
+    p = 0.0
+    while p < 2.1:
+        if round(p * 10) % 2 < 1:
             m = MarketData(time=datetime.now(),
                            volume=1.0,
                            price=p,
@@ -151,66 +172,38 @@ class TestDataSource:
             if p > 1.0:
                 m.side = Side.SELL
             ob.push(m)
-            p += .1
+        p += .1
 
-        print(ob)
+    print(ob)
 
-        p = 0.0
-        while p < 2.1:
-            if round(p * 10) % 2 < 1:
-                m = MarketData(time=datetime.now(),
-                               volume=1.0,
-                               price=p,
-                               type=TickType.OPEN,
-                               instrument=instruments[0],
-                               side=Side.BUY,
-                               remaining=0.0,
-                               reason=ChangeReason.NONE,
-                               sequence=-1,
-                               exchange=ExchangeType.COINBASE,
-                               order_type=OrderType.NONE)
-                if p > 1.0:
-                    m.side = Side.SELL
-                ob.push(m)
-            p += .1
+    p = 0.0
+    while p < 2.1:
+        m = MarketData(time=datetime.now(),
+                       volume=1.0,
+                       price=p,
+                       type=TickType.CHANGE,
+                       instrument=instruments[0],
+                       side=Side.BUY,
+                       remaining=0.0,
+                       reason=ChangeReason.CANCELLED,
+                       sequence=-1,
+                       exchange=ExchangeType.COINBASE,
+                       order_type=OrderType.NONE)
+        if p > 1.0:
+            m.side = Side.SELL
 
-        print(ob)
+        if round(p * 10) % 2 < 1:
+            m.type = TickType.CHANGE
+            m.reason = ChangeReason.FILLED
+        ob.push(m)
+        p += .1
 
-        p = 0.0
-        while p < 2.1:
-            m = MarketData(time=datetime.now(),
-                           volume=1.0,
-                           price=p,
-                           type=TickType.CHANGE,
-                           instrument=instruments[0],
-                           side=Side.BUY,
-                           remaining=0.0,
-                           reason=ChangeReason.CANCELLED,
-                           sequence=-1,
-                           exchange=ExchangeType.COINBASE,
-                           order_type=OrderType.NONE)
-            if p > 1.0:
-                m.side = Side.SELL
+    print(ob)
 
-            if round(p * 10) % 2 < 1:
-                m.type = TickType.CHANGE
-                m.reason = ChangeReason.FILLED
-            ob.push(m)
-            p += .1
 
-        print(ob)
-
-        print(ob._ob[instruments[0]]._bidd.keys())
-        print(ob._ob[instruments[0]]._bid)
-        # TODO check floating point error
-        assert ob._ob[instruments[0]]._bidd[0.0] == 1.0
-        assert ob._ob[instruments[0]]._bidd[0.2] == 1.0
-        assert ob._ob[instruments[0]]._bidd[0.4] == 1.0
-        assert ob._ob[instruments[0]]._bidd[0.6] == 1.0
-        assert ob._ob[instruments[0]]._bidd[0.8] == 1.0
-        assert ob._ob[instruments[0]]._bidd[1.0] == 1.0
-        assert ob._ob[instruments[0]]._askk[1.2] == 1.0
-        assert ob._ob[instruments[0]]._askk[1.4] == 1.0
-        assert ob._ob[instruments[0]]._askk[1.6] == 1.0
-        assert ob._ob[instruments[0]]._askk[1.8] == 1.0
-        assert ob._ob[instruments[0]]._askk[1.8] == 1.0
+if __name__ == '__main__':
+    import sys
+    if '-2' in sys.argv:
+        simulation2()
+    else:
+        simulation1()
