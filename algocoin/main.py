@@ -1,5 +1,6 @@
-from .trading import TradingEngine
-from .parser import parse_command_line_config
+from aat.trading import TradingEngine
+from aat.parser import parse_command_line_config
+from .ui.server import ServerApplication
 
 
 def main(argv: list) -> None:
@@ -11,7 +12,7 @@ def main(argv: list) -> None:
     # including the strategies, the bank/risk engine, and the
     # exchange/backtest engine.
 
-    te = TradingEngine(config)
+    te = TradingEngine(config, ServerApplication)
 
     # Run the live trading engine
     te.run()
