@@ -1,22 +1,4 @@
 class TestUtils:
-    def setup(self):
-        pass
-        # setup() before each test method
-
-    def teardown(self):
-        pass
-        # teardown() after each test method
-
-    @classmethod
-    def setup_class(cls):
-        pass
-        # setup_class() before any methods in this class
-
-    @classmethod
-    def teardown_class(cls):
-        pass
-        # teardown_class() after any methods in this class
-
     def test_config(self):
         from ..utils import config
 
@@ -95,25 +77,6 @@ class TestUtils:
         from ..exchanges.coinbase import CoinbaseExchange
         assert ex_type_to_ex(ExchangeType.COINBASE) == CoinbaseExchange
 
-    def test_exchange_to_file(self):
-        from ..utils import exchange_to_file
-        from ..enums import ExchangeType
-
-        assert(exchange_to_file(ExchangeType.COINBASE),
-               "./data/exchange/coinbaseUSD.csv")
-        assert(exchange_to_file(ExchangeType.BITSTAMP),
-               "./data/exchange/bitstampUSD.csv")
-        assert(exchange_to_file(ExchangeType.BITFINEX),
-               "./data/exchange/bitfinexUSD.csv")
-        assert(exchange_to_file(ExchangeType.ITBIT),
-               "./data/exchange/itbitUSD.csv")
-        assert(exchange_to_file(ExchangeType.KRAKEN),
-               "./data/exchange/krakenUSD.csv")
-        assert(exchange_to_file(ExchangeType.HITBTC),
-               "./data/exchange/hitbtcUSD.csv")
-        assert(exchange_to_file(ExchangeType.LAKE),
-               "./data/exchange/lakeUSD.csv")
-
     def test_set_verbose(self):
         import logging
         from ..utils import set_verbose
@@ -183,7 +146,6 @@ class TestUtils:
         assert(str_to_exchange('kraken') == ExchangeType.KRAKEN)
         assert(str_to_exchange('lake') == ExchangeType.LAKE)
         assert(str_to_exchange('coinbase') == ExchangeType.COINBASE)
-        assert(str_to_exchange('ccxt') == ExchangeType.CCXT)
 
     def test_str_to_currency_pair_type(self):
         from ..utils import str_to_currency_pair_type
@@ -191,7 +153,11 @@ class TestUtils:
 
         for c1, v1 in CurrencyType.__members__.items():
             for c2, v2 in CurrencyType.__members__.items():
-                if c1 == c2:
+                if c1 == c2 or \
+                   c1 == 'USD' or \
+                   c2 == 'USD' or \
+                   c1 == 'NONE' or \
+                   c2 == 'NONE':
                     continue
                 assert str_to_currency_pair_type(c1 + '/' + c2) == PairType.from_string(c1 + '/' + c2)
                 assert str_to_currency_pair_type(c1 + '-' + c2) == PairType.from_string(c1, c2)

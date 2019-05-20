@@ -24,39 +24,23 @@ class TestDefine:
         assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.BITSTAMP, TradingType.SANDBOX) \
             == ''
         assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.BITSTAMP, TradingType.LIVE) \
-            == ''
+            == 'wss://ws.bitstamp.net'
         assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.BITFINEX, TradingType.SANDBOX) \
             == ''
         assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.BITFINEX, TradingType.LIVE) \
             == ''
-        assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.CEX, TradingType.SANDBOX) \
-            == ''
-        assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.CEX, TradingType.LIVE) \
-            == ''
         assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.COINBASE, TradingType.SANDBOX) \
-            == 'wss://ws-feed.sandbox.gdax.com'
-        assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.COINBASE, TradingType.LIVE) \
             == 'wss://ws-feed-public.sandbox.pro.coinbase.com'
+        assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.COINBASE, TradingType.LIVE) \
+            == 'wss://ws-feed.pro.coinbase.com'
         assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.GEMINI, TradingType.SANDBOX) \
             == 'wss://api.sandbox.gemini.com/v1/marketdata/%s?heartbeat=true'
         assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.GEMINI, TradingType.LIVE) \
             == 'wss://api.gemini.com/v1/marketdata/%s?heartbeat=true'
-        assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.HITBTC, TradingType.SANDBOX) \
-            == ''
-        assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.HITBTC, TradingType.LIVE) \
-            == ''
-        assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.ITBIT, TradingType.SANDBOX) \
-            == ''
-        assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.ITBIT, TradingType.LIVE) \
-            == ''
         assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.KRAKEN, TradingType.SANDBOX) \
-            == ''
+            == 'wss://ws-beta.kraken.com'
         assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.KRAKEN, TradingType.LIVE) \
-            == ''
-        assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.LAKE, TradingType.SANDBOX) \
-            == ''
-        assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.LAKE, TradingType.LIVE) \
-            == ''
+            == 'wss://ws.kraken.com'
         assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.POLONIEX, TradingType.SANDBOX) \
             == ''
         assert EXCHANGE_MARKET_DATA_ENDPOINT(ExchangeType.POLONIEX, TradingType.LIVE) \

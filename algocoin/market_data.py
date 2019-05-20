@@ -1,21 +1,10 @@
 import aiohttp
-import json
 from abc import abstractmethod
-from datetime import datetime
-from functools import lru_cache
-from websocket import create_connection
 from .data_source import StreamingDataSource
 from .define import EXCHANGE_MARKET_DATA_ENDPOINT
-from .enums import OrderType, OrderSubType, Side, PairType, CurrencyType, TickType, ChangeReason
-from .utils import parse_date, str_to_currency_pair_type, str_to_side, str_to_order_type
-from .structs import MarketData, Instrument
+from .enums import OrderType, PairType, CurrencyType, TickType
+from .structs import MarketData
 from .logging import LOG as log
-
-
-def exchange_type_to_websocket_client(exchange_type):
-    if exchange_type == ExchangeType.COINBASE:
-        return CoinbaseWebsocketMixin
-    raise Exception(f'No websocket client for {exchange_type}')
 
 
 class MarketData(StreamingDataSource):

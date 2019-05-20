@@ -46,7 +46,7 @@ class TestSMACrossesStrategy:
 
     def test_sma_match(self):
         from ...strategies.sma_crosses_strategy import SMACrossesStrategy
-        from ...enums import TickType, Side, PairType
+        from ...enums import TickType, Side, PairType, ExchangeType
         from ...structs import MarketData, Instrument
         from ...utils import parse_date
 
@@ -58,6 +58,7 @@ class TestSMACrossesStrategy:
                            time=parse_date('1479272400'),
                            price=float(x),
                            volume=float(100),
+                           exchange=ExchangeType.COINBASE,
                            side=Side.BUY) for x in range(10)]
 
         for x in range(10):
@@ -71,7 +72,7 @@ class TestSMACrossesStrategy:
 
     def test_sma_buy(self):
         from ...strategies.sma_crosses_strategy import SMACrossesStrategy
-        from ...enums import TickType, Side, TradeResult, PairType
+        from ...enums import TickType, Side, TradeResult, PairType, ExchangeType
         from ...structs import MarketData, TradeResponse, Instrument
         from ...utils import parse_date
 
@@ -99,6 +100,7 @@ class TestSMACrossesStrategy:
                            instrument=Instrument(underlying=PairType.BTCUSD),
                            price=float(x),
                            volume=float(100),
+                           exchange=ExchangeType.COINBASE,
                            side=Side.BUY) for x in range(10)]
 
         for x in range(1, 11):
@@ -127,7 +129,7 @@ class TestSMACrossesStrategy:
     def test_sma_sell(self):
         self.test_sma_buy()
 
-        from ...enums import TickType, Side, PairType
+        from ...enums import TickType, Side, PairType, ExchangeType
         from ...structs import MarketData, Instrument
         from ...utils import parse_date
 
@@ -135,6 +137,7 @@ class TestSMACrossesStrategy:
                           time=parse_date('1479272400'),
                           price=float(0),
                           volume=float(100),
+                          exchange=ExchangeType.COINBASE,
                           instrument=Instrument(underlying=PairType.BTCUSD),
                           side=Side.BUY)
 
@@ -163,4 +166,3 @@ class TestSMACrossesStrategy:
             self.test_sma_buy()
             self.test_sma_sell()
             self.s.onAnalyze(None)
-

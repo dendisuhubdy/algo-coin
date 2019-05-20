@@ -1,6 +1,5 @@
 import logging
 import os
-import math
 import pytz
 from datetime import datetime
 from enum import Enum

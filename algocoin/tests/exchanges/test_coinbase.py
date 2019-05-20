@@ -2,27 +2,8 @@ from mock import patch, MagicMock
 
 
 class TestExchange:
-    def setup(self):
-        pass
-        # setup() before each test method
-
-    def teardown(self):
-        pass
-        # teardown() after each test method
-
-    @classmethod
-    def setup_class(cls):
-        pass
-        # setup_class() before any methods in this class
-
-    @classmethod
-    def teardown_class(cls):
-        pass
-        # teardown_class() after any methods in this class
-
     def test_init(self):
         from ...config import ExchangeConfig
-        from ...exchanges.coinbase import CoinbaseExchange
         from ...exchanges.coinbase import CoinbaseExchange
         from ...enums import ExchangeType
 
@@ -30,7 +11,7 @@ class TestExchange:
             ec = ExchangeConfig()
             ec.exchange_type = ExchangeType.COINBASE
             m.getAccounts.return_value = []
-            e = CoinbaseExchange(ec)
+            e = CoinbaseExchange(ExchangeType.COINBASE, ec)
             e._running = True
             assert e
 
@@ -39,10 +20,10 @@ class TestExchange:
         from ...exchanges.coinbase import CoinbaseExchange
         from ...enums import TickType, ExchangeType
 
-        with patch('os.environ'), patch('gdax.AuthenticatedClient'):
+        with patch('os.environ'), patch('ccxt.coinbasepro'):
             ec = ExchangeConfig()
             ec.exchange_type = ExchangeType.COINBASE
-            e = CoinbaseExchange(ec)
+            e = CoinbaseExchange(ExchangeType.COINBASE, ec)
             e._running = True
             assert e
 
@@ -97,9 +78,14 @@ class TestExchange:
     #             assert e._missingseqnum == set()
 
     def test_trade_req_to_params_coinbase(self):
+        from ...config import ExchangeConfig
         from ...exchanges.coinbase import CoinbaseExchange
-        from ...enums import PairType, OrderType, OrderSubType
+        from ...enums import PairType, OrderType, OrderSubType, ExchangeType
         from ...structs import Instrument
+
+        ec = ExchangeConfig()
+        ec.exchange_type = ExchangeType.COINBASE
+        e = CoinbaseExchange(ExchangeType.COINBASE, ec)
 
         class tmp:
             def __init__(self, a=True):
@@ -110,8 +96,8 @@ class TestExchange:
                 self.order_sub_type = OrderSubType.POST_ONLY if a \
                     else OrderSubType.FILL_OR_KILL
 
-        res1 = CoinbaseExchange.tradeReqToParams(tmp())
-        res2 = CoinbaseExchange.tradeReqToParams(tmp(False))
+        res1 = e.tradeReqToParams(tmp())
+        res2 = e.tradeReqToParams(tmp(False))
 
         assert(res1['price'] == 'test')
         assert(res1['size'] == 'test')
@@ -123,32 +109,50 @@ class TestExchange:
     def test_CoinbaseHelpers_strToTradeType(self):
         from ...exchanges.coinbase import CoinbaseExchange
         from ...enums import TickType
-        assert CoinbaseExchange.strToTradeType('match') == TickType.TRADE
-        assert CoinbaseExchange.strToTradeType('received') == TickType.RECEIVED
-        assert CoinbaseExchange.strToTradeType('open') == TickType.OPEN
-        assert CoinbaseExchange.strToTradeType('done') == TickType.DONE
-        assert CoinbaseExchange.strToTradeType('change') == TickType.CHANGE
-        assert CoinbaseExchange.strToTradeType('heartbeat') == TickType.HEARTBEAT
-        assert CoinbaseExchange.strToTradeType('flarg') == TickType.ERROR
+        from ...config import ExchangeConfig
+        from ...enums import ExchangeType
+        ec = ExchangeConfig()
+        ec.exchange_type = ExchangeType.COINBASE
+        e = CoinbaseExchange(ExchangeType.COINBASE, ec)
+
+        assert e.strToTradeType('match') == TickType.TRADE
+        assert e.strToTradeType('received') == TickType.RECEIVED
+        assert e.strToTradeType('open') == TickType.OPEN
+        assert e.strToTradeType('done') == TickType.DONE
+        assert e.strToTradeType('change') == TickType.CHANGE
+        assert e.strToTradeType('heartbeat') == TickType.HEARTBEAT
+        assert e.strToTradeType('flarg') == TickType.ERROR
 
     def test_CoinbaseHelpers_currencyToString(self):
         from ...exchanges.coinbase import CoinbaseExchange
         from ...enums import CurrencyType
-        assert CoinbaseExchange.currencyToString(CurrencyType.BTC) == 'BTC'
-        assert CoinbaseExchange.currencyToString(CurrencyType.ETH) == 'ETH'
-        assert CoinbaseExchange.currencyToString(CurrencyType.LTC) == 'LTC'
-        assert CoinbaseExchange.currencyToString(CurrencyType.BCH) == 'BCH'
+        from ...config import ExchangeConfig
+        from ...enums import ExchangeType
+        ec = ExchangeConfig()
+        ec.exchange_type = ExchangeType.COINBASE
+        e = CoinbaseExchange(ExchangeType.COINBASE, ec)
+
+        assert e.currencyToString(CurrencyType.BTC) == 'BTC'
+        assert e.currencyToString(CurrencyType.ETH) == 'ETH'
+        assert e.currencyToString(CurrencyType.LTC) == 'LTC'
+        assert e.currencyToString(CurrencyType.BCH) == 'BCH'
 
     def test_CoinbaseHelpers_currencyPairToString(self):
         from ...exchanges.coinbase import CoinbaseExchange
         from ...enums import PairType
-        assert CoinbaseExchange.currencyPairToString(PairType.BTCUSD) == 'BTC-USD'
-        assert CoinbaseExchange.currencyPairToString(PairType.BTCETH) == 'BTC-ETH'
-        assert CoinbaseExchange.currencyPairToString(PairType.BTCLTC) == 'BTC-LTC'
-        assert CoinbaseExchange.currencyPairToString(PairType.BTCBCH) == 'BTC-BCH'
-        assert CoinbaseExchange.currencyPairToString(PairType.ETHUSD) == 'ETH-USD'
-        assert CoinbaseExchange.currencyPairToString(PairType.LTCUSD) == 'LTC-USD'
-        assert CoinbaseExchange.currencyPairToString(PairType.BCHUSD) == 'BCH-USD'
-        assert CoinbaseExchange.currencyPairToString(PairType.ETHBTC) == 'ETH-BTC'
-        assert CoinbaseExchange.currencyPairToString(PairType.LTCBTC) == 'LTC-BTC'
-        assert CoinbaseExchange.currencyPairToString(PairType.BCHBTC) == 'BCH-BTC'
+        from ...config import ExchangeConfig
+        from ...enums import ExchangeType
+        ec = ExchangeConfig()
+        ec.exchange_type = ExchangeType.COINBASE
+        e = CoinbaseExchange(ExchangeType.COINBASE, ec)
+
+        assert e.currencyPairToString(PairType.BTCUSD) == 'BTC-USD'
+        assert e.currencyPairToString(PairType.BTCETH) == 'BTC-ETH'
+        assert e.currencyPairToString(PairType.BTCLTC) == 'BTC-LTC'
+        assert e.currencyPairToString(PairType.BTCBCH) == 'BTC-BCH'
+        assert e.currencyPairToString(PairType.ETHUSD) == 'ETH-USD'
+        assert e.currencyPairToString(PairType.LTCUSD) == 'LTC-USD'
+        assert e.currencyPairToString(PairType.BCHUSD) == 'BCH-USD'
+        assert e.currencyPairToString(PairType.ETHBTC) == 'ETH-BTC'
+        assert e.currencyPairToString(PairType.LTCBTC) == 'LTC-BTC'
+        assert e.currencyPairToString(PairType.BCHBTC) == 'BCH-BTC'

@@ -2,24 +2,6 @@ from mock import patch, MagicMock
 
 
 class TestExchange:
-    def setup(self):
-        pass
-        # setup() before each test method
-
-    def teardown(self):
-        pass
-        # teardown() after each test method
-
-    @classmethod
-    def setup_class(cls):
-        pass
-        # setup_class() before any methods in this class
-
-    @classmethod
-    def teardown_class(cls):
-        pass
-        # teardown_class() after any methods in this class
-
     def test_init(self):
         from ...config import ExchangeConfig
         from ...exchanges.gemini import GeminiExchange
@@ -29,7 +11,7 @@ class TestExchange:
             ec = ExchangeConfig()
             ec.exchange_type = ExchangeType.GEMINI
             m.get_balances.return_value = []
-            e = GeminiExchange(ec)
+            e = GeminiExchange(ExchangeType.GEMINI, ec)
             e._running = True
             assert e
 
@@ -41,7 +23,7 @@ class TestExchange:
         with patch('os.environ'), patch('ccxt.gemini'):
             ec = ExchangeConfig()
             ec.exchange_type = ExchangeType.GEMINI
-            e = GeminiExchange(ec)
+            e = GeminiExchange(ExchangeType.GEMINI, ec)
             e._running = True
             assert e
 
@@ -77,6 +59,11 @@ class TestExchange:
         from ...exchanges.gemini import GeminiExchange
         from ...enums import PairType, OrderType, OrderSubType
         from ...structs import Instrument
+        from ...config import ExchangeConfig
+        from ...enums import ExchangeType
+        ec = ExchangeConfig()
+        ec.exchange_type = ExchangeType.GEMINI
+        e = GeminiExchange(ExchangeType.GEMINI, ec)
 
         class tmp:
             def __init__(self, a=True):
@@ -87,8 +74,8 @@ class TestExchange:
                 self.order_sub_type = OrderSubType.POST_ONLY if a \
                     else OrderSubType.FILL_OR_KILL
 
-        res1 = GeminiExchange.tradeReqToParams(tmp())
-        res2 = GeminiExchange.tradeReqToParams(tmp(False))
+        res1 = e.tradeReqToParams(tmp())
+        res2 = e.tradeReqToParams(tmp(False))
 
         assert(res1['price'] == 'test')
         assert(res1['size'] == 'test')
@@ -100,23 +87,40 @@ class TestExchange:
     def test_GeminiHelpers_reasonToTradeType(self):
         from ...exchanges.gemini import GeminiExchange
         from ...enums import TickType
-        assert GeminiExchange.reasonToTradeType('CANCEL') == TickType.DONE
-        assert GeminiExchange.reasonToTradeType('PLACE') == TickType.OPEN
-        assert GeminiExchange.reasonToTradeType('INITIAL') == TickType.OPEN
+        from ...config import ExchangeConfig
+        from ...enums import ExchangeType
+        ec = ExchangeConfig()
+        ec.exchange_type = ExchangeType.GEMINI
+        e = GeminiExchange(ExchangeType.GEMINI, ec)
+
+        assert e.reasonToTradeType('CANCEL') == TickType.DONE
+        assert e.reasonToTradeType('PLACE') == TickType.OPEN
+        assert e.reasonToTradeType('INITIAL') == TickType.OPEN
 
     def test_GeminiHelpers_strToTradeType(self):
         from ...exchanges.gemini import GeminiExchange
         from ...enums import TickType
-        assert GeminiExchange.strToTradeType('trade') == TickType.TRADE
-        assert GeminiExchange.strToTradeType('change') == TickType.CHANGE
-        assert GeminiExchange.strToTradeType('heartbeat') == TickType.HEARTBEAT
-        assert GeminiExchange.strToTradeType('flarg') == TickType.ERROR
+        from ...config import ExchangeConfig
+        from ...enums import ExchangeType
+        ec = ExchangeConfig()
+        ec.exchange_type = ExchangeType.GEMINI
+        e = GeminiExchange(ExchangeType.GEMINI, ec)
+
+        assert e.strToTradeType('trade') == TickType.TRADE
+        assert e.strToTradeType('change') == TickType.CHANGE
+        assert e.strToTradeType('heartbeat') == TickType.HEARTBEAT
 
     def test_GeminiHelpers_currencyPairToString(self):
         from ...exchanges.gemini import GeminiExchange
         from ...enums import PairType
-        assert GeminiExchange.currencyPairToString(PairType.BTCUSD) == 'BTCUSD'
-        assert GeminiExchange.currencyPairToString(PairType.ETHUSD) == 'ETHUSD'
-        assert GeminiExchange.currencyPairToString(PairType.ZECUSD) == 'ZECUSD'
-        assert GeminiExchange.currencyPairToString(PairType.ETHBTC) == 'ETHBTC'
-        assert GeminiExchange.currencyPairToString(PairType.ZECETH) == 'ZECETH'
+        from ...config import ExchangeConfig
+        from ...enums import ExchangeType
+        ec = ExchangeConfig()
+        ec.exchange_type = ExchangeType.GEMINI
+        e = GeminiExchange(ExchangeType.GEMINI, ec)
+
+        assert e.currencyPairToString(PairType.BTCUSD) == 'BTCUSD'
+        assert e.currencyPairToString(PairType.ETHUSD) == 'ETHUSD'
+        assert e.currencyPairToString(PairType.ZECUSD) == 'ZECUSD'
+        assert e.currencyPairToString(PairType.ETHBTC) == 'ETHBTC'
+        assert e.currencyPairToString(PairType.ZECETH) == 'ZECETH'

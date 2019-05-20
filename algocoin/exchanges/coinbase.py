@@ -80,7 +80,7 @@ class CoinbaseExchange(Exchange):
         return cur.value[0].value + '-' + cur.value[1].value
 
     def orderTypeToString(self, typ: OrderType) -> str:
-        return type.value.lower()
+        return typ.value.lower()
 
     def reasonToTradeType(self, s: str) -> TickType:
         pass

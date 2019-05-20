@@ -36,12 +36,13 @@ class TestStructs:
 
     def test_MarketData(self):
         from ..structs import MarketData, Instrument
-        from ..enums import TickType, Side, PairType
+        from ..enums import TickType, Side, PairType, ExchangeType
         m = MarketData(time=datetime.now(),
                        volume=1.0,
                        price=1.0,
                        instrument=Instrument(underlying=PairType.BTCUSD),
                        type=TickType.TRADE,
+                       exchange=ExchangeType.COINBASE,
                        side=Side.BUY)
         # TODO no fields yet
         assert m

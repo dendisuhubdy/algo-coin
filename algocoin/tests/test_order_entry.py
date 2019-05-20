@@ -1,5 +1,5 @@
 import os
-from mock import patch, MagicMock
+from mock import patch
 
 
 class TestOrderEntry:
@@ -12,25 +12,6 @@ class TestOrderEntry:
         os.environ['GEMINI_API_SECRET'] = 'test'
         os.environ['GEMINI_API_PASS'] = 'test'
 
-        self.ec = ExchangeConfig(exchange_type=ExchangeType.GEMINI, trading_type=TradingType.LIVE, currency_pairs=[PairType.BTCUSD])
-
-    def teardown(self):
-        pass
-        # teardown() after each test method
-
-    @classmethod
-    def setup_class(cls):
-        pass
-        # setup_class() before any methods in this class
-
-    @classmethod
-    def teardown_class(cls):
-        pass
-        # teardown_class() after any methods in this class
-
-    def test_OE(self):
-        from algocoin.order_entry import OrderEntry
-        with patch('ccxt.__getattribute__') as m:
-            oe = OrderEntry(self.ec, MagicMock())
-            print(oe)
-            assert m.call_count == 1
+        self.ec = ExchangeConfig(exchange_types=[ExchangeType.GEMINI],
+                                 trading_type=TradingType.LIVE,
+                                 currency_pairs=[PairType.BTCUSD])

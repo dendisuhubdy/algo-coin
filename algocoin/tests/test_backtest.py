@@ -1,10 +1,18 @@
+import pandas as pd
+
+
 class TestBacktest:
     def setup(self):
         from ..config import BacktestConfig
         self.config = BacktestConfig()
-        self.config.file = 'test'
-
-        self.test_line = '1479272400,1,100'
+        df = pd.DataFrame([{'volume': '100',
+                            'close': '1',
+                            'timestamp': '1558296780000',
+                            'pair': 'USDBTC'
+                            }])
+        df['timestamp'] = pd.to_datetime(df['timestamp'])
+        df.set_index(['timestamp', 'pair'])
+        self.test_line = df.iloc[0]
 
     def teardown(self):
         pass
@@ -64,7 +72,6 @@ class TestBacktest:
         from ..backtest import Backtest
         b = Backtest(self.config)
         assert b
-        assert b._file == 'test'
 
     def test_receive(self):
         from ..backtest import Backtest, line_to_data

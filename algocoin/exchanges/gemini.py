@@ -1,12 +1,10 @@
 import aiohttp
-import asyncio
 import json
 from aiostream import stream
 from datetime import datetime
 from functools import lru_cache
-from ..config import ExchangeConfig
 from ..define import EXCHANGE_MARKET_DATA_ENDPOINT
-from ..enums import Side, ExchangeType, OrderType, OrderSubType, PairType, TickType, ChangeReason
+from ..enums import Side, OrderType, OrderSubType, PairType, TickType, ChangeReason
 from ..exchange import Exchange
 from ..logging import LOG as log
 from ..structs import MarketData, Instrument, TradeResponse
@@ -177,4 +175,4 @@ class GeminiExchange(Exchange):
         return cur.value[0].value + cur.value[1].value
 
     def orderTypeToString(self, typ: OrderType) -> str:
-        return type.value.lower()
+        return typ.value.lower()
