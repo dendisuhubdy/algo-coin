@@ -13,11 +13,10 @@ languages:
 exclude:
 - /docs/.*
 - .*/setup\.py
-- /algocoin/lib/oe/.*
-- /algocoin/lib/oe/poloniex/.*
+- /algocoin/order_entry.py
 - /scripts/.*
-- /algocoin/lib/logging\.py
-- /algocoin/lib/define\.py
+- /algocoin/logging\.py
+- /algocoin/define\.py
 - /algocoin/custom\_strategies\.py
 - /custom_strategies/.*
-- /algocoin/lib/strategies/.*
+- /algocoin/strategies/.*
