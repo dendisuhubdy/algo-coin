@@ -51,4 +51,5 @@ function main(): void {
   Widget.attach(header, document.body);
   Widget.attach(bar, document.body);
   Widget.attach(main, document.body);
+
 }
