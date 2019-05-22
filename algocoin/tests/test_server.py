@@ -1,4 +1,4 @@
-from mock import MagicMock
+# from mock import MagicMock
 
 
 class TestExecution:
@@ -21,6 +21,6 @@ class TestExecution:
         # teardown_class() after any methods in this class
 
     def test_init(self):
-        from ...ui.server import ServerApplication
-        s = ServerApplication(MagicMock())
+        from ..ui.server import getHandlers
+        s = getHandlers()
         assert s

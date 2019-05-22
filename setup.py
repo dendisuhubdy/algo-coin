@@ -19,7 +19,7 @@ for path, subdirs, files in os.walk('algocoin/src'):
             sources.append(fp)
 
 with open(os.path.join(here, 'requirements.txt'), encoding='utf-8') as f:
-    requires = f.read().split()
+    requires = [s for s in f.read().split('\n') if not s.startswith('-e')]
 
 setup(
     name='algocoin',

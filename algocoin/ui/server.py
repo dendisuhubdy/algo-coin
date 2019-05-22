@@ -1,45 +1,19 @@
 import os
 import os.path
-import logging
 import tornado.ioloop
 import tornado.web
-from .handlers.accounts import ServerAccountsHandler
-from .handlers.messages import ServerMessagesHandler, ServerMessagesWSHandler
-from .handlers.orders import ServerOrdersHandler
-from .handlers.html import HTMLOpenHandler
+from aat.ui.handlers.html import HTMLOpenHandler
 
 
-class ServerApplication(tornado.web.Application):
-    def __init__(self, trading_engine, debug=True, cookie_secret=None, *args, **kwargs):
-        root = os.path.join(os.path.dirname(__file__), 'assets')
-        static = os.path.join(root, 'static')
+def getHandlers():
+    root = os.path.join(os.path.dirname(__file__), 'assets')
+    static = os.path.join(root, 'static', 'js')
 
-        logging.getLogger('tornado.access').disabled = True
+    settings = {
+        "template_path": os.path.join(root, 'templates'),
+    }
 
-        settings = {
-                "cookie_secret": cookie_secret or "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",  # TODO
-                "login_url": "/login",
-                "debug": debug,
-                "template_path": os.path.join(root, 'templates'),
-                }
-
-        super(ServerApplication, self).__init__([
-            (r"/", HTMLOpenHandler, {'template': 'index.html'}),
-            (r"/api/json/v1/accounts", ServerAccountsHandler, {'trading_engine': trading_engine}),
-            (r"/api/json/v1/orders", ServerOrdersHandler, {'trading_engine': trading_engine,
-                                                           'psp_kwargs': {'view': 'hypergrid',
-                                                                          'columns': ['time', 'volume', 'price', 'instrument'],
-                                                                          'columnpivots': ['side'],
-                                                                          'sort': ['price', 'asc'],
-                                                                          'filters': ['reason', '==', 'ChangeReason.OPENED'],
-                                                                          }}),
-            (r"/api/json/v1/messages", ServerMessagesHandler, {'trading_engine': trading_engine,
-                                                               'psp_kwargs': {'view': 'y_line',
-                                                                              'aggregates': {'price': 'last'},
-                                                                              'columns': 'price',
-                                                                              'rowpivots': 'time',
-                                                                              'columnpivots': ['type', 'side']}}),
-            (r"/api/ws/v1/messages", ServerMessagesWSHandler, {'trading_engine': trading_engine}),
-            (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": static}),
-            (r"/(.*)", HTMLOpenHandler, {'template': '404.html'})
-        ], **settings)
+    return settings, [
+        (r"/", HTMLOpenHandler, {'template': 'index.html'}),
+        (r"/static/js/(.*)", tornado.web.StaticFileHandler, {"path": static}),
+        ]
