@@ -1,9 +1,12 @@
-import {BoxPanel, DockPanel, MenuBar, TabPanel, Widget} from "@phosphor/widgets";
-// import {BoxPanel, DockLayout, DockPanel, MenuBar, TabPanel, Widget} from "@phosphor/widgets";
-
-import {DataLoader, PerspectiveDataLoader} from "phosphor-perspective-utils/data";
+import {PerspectiveWidget} from "@finos/perspective-phosphor";
+import {CommandRegistry} from "@phosphor/commands";
+import {BoxPanel, MenuBar, TabPanel, Widget} from "@phosphor/widgets";
+import {DataLoader} from "phosphor-perspective-utils/data";
 import {Header} from "phosphor-perspective-utils/header";
 import {hideLoader, showLoader} from "phosphor-perspective-utils/loader";
+import {buildAccountsTab} from "./accounts";
+import {buildMarketDataTab} from "./market_data";
+import {buildStrategiesTab} from "./strategies";
 
 export
 function main(): void {
@@ -15,48 +18,34 @@ function main(): void {
   const bar = new MenuBar();
   bar.id = "menuBar";
 
-  const dock = new DockPanel();
-  dock.id = "dock";
-  dock.title.label = "Home";
-
   showLoader();
   hideLoader(1000);
 
-  const accounts = new PerspectiveDataLoader("Accounts");
-  dock.addWidget(accounts);
+  const commands = new CommandRegistry();
 
-  const data = new PerspectiveDataLoader("Data");
-  dock.addWidget(data);
+  const tabs = [];
+  let dataLoaders = [] as DataLoader[];
+  let perspectiveInstances = [] as PerspectiveWidget[];
 
-  const bidask = new PerspectiveDataLoader("Orders");
-  dock.addWidget(bidask);
-
-  const dataLoader = new DataLoader([data], "/api/json/v1/messages", {pair: "BTCUSD", type: "TRADE"});
-  dataLoader.start();
-
-  const accountsLoader = new DataLoader([accounts], "/api/json/v1/accounts");
-  accountsLoader.start();
-
-  const bidLoader = new DataLoader([bidask], "/api/json/v1/orders", {pair: "BTCUSD", type: "CHANGE"});
-  bidLoader.start();
-
-  /* save/restore layouts */
-  // let savedLayouts: DockPanel.ILayoutConfig[] = [];
-  // savedLayouts.push(dock.saveLayout());
-
-  /* hack for custom sizing */
-  // const layout = dock.saveLayout();
-  // const sizes: number[] = (layout.main as DockLayout.ISplitAreaConfig).sizes;
-  // sizes[0] = 0.25;
-  // sizes[1] = 0.75;
-  // dock.restoreLayout(layout);
+  for (const foo of [buildAccountsTab, buildMarketDataTab, buildStrategiesTab]) {
+    const {tab, loaders, perspectives} = foo(commands);
+    tabs.push(tab);
+    dataLoaders = dataLoaders.concat(loaders);
+    perspectiveInstances = perspectiveInstances.concat(perspectives);
+  }
 
   /* main area setup */
-  BoxPanel.setStretch(dock, 1);
-  main.addWidget(dock);
+  BoxPanel.setStretch(main, 1);
+  for (const tab of tabs) {
+    main.addWidget(tab);
+  }
+
+  for (const dl of dataLoaders) {
+    dl.start();
+  }
 
   /* Title bar */
-  const header = new Header([accounts, data, bidask]);
+  const header = new Header(perspectiveInstances);
 
   window.onresize = () => { main.update(); };
   Widget.attach(header, document.body);

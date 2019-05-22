@@ -42,15 +42,15 @@ js:  ## build the js
 	yarn build
 
 tests: ## Clean and Make unit tests
-	python3 -m pytest -v ./build/`ls ./build | grep lib`/algocoin/tests --cov=algocoin
+	python3 -m pytest -v ./algocoin/tests --cov=algocoin
 	yarn test
 
 test: clean build lint ## run the tests for travis CI
-	@ python3 -m pytest -v ./build/`ls ./build | grep lib`/algocoin/tests --cov=algocoin
+	@ python3 -m pytest -v ./algocoin/tests --cov=algocoin
 	yarn test
 
 test_verbose: ## run the tests with full output
-	@ python3 -m pytest -vv ./build/`ls ./build | grep lib`/algocoin/tests --cov=algocoin
+	@ python3 -m pytest -vv ./algocoin/tests --cov=algocoin
 	yarn test
 
 lint: ## run linter
