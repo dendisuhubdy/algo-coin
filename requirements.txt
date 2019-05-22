@@ -1,3 +1,4 @@
+aat>=0.0.1
 perspective-python>=0.1.6
 tornado>=5.1
 ujson>=1.35
