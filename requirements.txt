@@ -1,4 +1,4 @@
 perspective-python>=0.1.6
 tornado>=5.1
 ujson>=1.35
--e git://github.com/timkpaine/aat.git@iframe#egg=aat
+-e git://github.com/timkpaine/aat.git@master#egg=aat
