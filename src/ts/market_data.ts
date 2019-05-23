@@ -17,9 +17,8 @@ function buildMarketDataTab(commands: CommandRegistry): ITab {
   liveMenu.title.label = "Live";
 
   const trades = new PerspectiveDataLoader("Trades");
-  trades.title.closable = true;
   const bidask = new PerspectiveDataLoader("Orders");
-  bidask.title.closable = true;
+
   const dataLoader = new DataLoader([trades], "/api/json/v1/messages", {pair: "BTCUSD", type: "TRADE"});
   const bidLoader = new DataLoader([bidask], "/api/json/v1/orders", {pair: "BTCUSD", type: "CHANGE"});
 

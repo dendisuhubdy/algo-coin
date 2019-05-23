@@ -1,5 +1,4 @@
-aat>=0.0.1
+-e git://github.com/timkpaine/aat.git@master#egg=aat
 perspective-python>=0.1.6
 tornado>=5.1
 ujson>=1.35
--e git://github.com/timkpaine/aat.git@master#egg=aat
