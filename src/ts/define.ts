@@ -3,6 +3,6 @@ export const COMMANDS = {
     LIVEDATA_TRADES: "marketData:liveData:trades",
 };
 export const COMMAND_ICONS = {
-    LIVEDATA_ORDERBOOK: "",
-    LIVEDATA_TRADES: "",
+    LIVEDATA_ORDERBOOK: "fa fa-plus",
+    LIVEDATA_TRADES: "fa fa-plus",
 };

@@ -14,5 +14,5 @@ function buildAccountsTab(commands: CommandRegistry): ITab {
 
   const accountsLoader = new DataLoader([accountsList], "/api/json/v1/accounts");
 
-  return {tab: accounts, loaders: [accountsLoader], perspectives: [accountsList]};
+  return {tab: accounts, loaders: [accountsLoader], perspectives: [accountsList], menus: []    };
 }

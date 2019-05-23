@@ -8,5 +8,5 @@ function buildStrategiesTab(commands: CommandRegistry): ITab {
   strategies.id = "strategies";
   strategies.title.label = "Strategies";
 
-  return {tab: strategies, loaders: [], perspectives: []};
+  return {tab: strategies, loaders: [], perspectives: [], menus: []};
 }

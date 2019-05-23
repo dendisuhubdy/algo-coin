@@ -1,6 +1,6 @@
 import {PerspectiveWidget} from "@finos/perspective-phosphor";
 import {CommandRegistry} from "@phosphor/commands";
-import {BoxPanel, MenuBar, TabPanel, Widget} from "@phosphor/widgets";
+import {BoxPanel, Menu, TabPanel, Widget} from "@phosphor/widgets";
 import {DataLoader} from "phosphor-perspective-utils/data";
 import {Header} from "phosphor-perspective-utils/header";
 import {hideLoader, showLoader} from "phosphor-perspective-utils/loader";
@@ -14,22 +14,20 @@ function main(): void {
   const main = new TabPanel();
   main.id = "main";
 
-  /* File bar */
-  const bar = new MenuBar();
-  bar.id = "menuBar";
-
   showLoader();
   hideLoader(1000);
 
   const commands = new CommandRegistry();
 
   const tabs = [];
+  let allMenus = [] as Menu[];
   let dataLoaders = [] as DataLoader[];
   let perspectiveInstances = [] as PerspectiveWidget[];
 
   for (const foo of [buildAccountsTab, buildMarketDataTab, buildStrategiesTab]) {
-    const {tab, loaders, perspectives} = foo(commands);
+    const {tab, loaders, perspectives, menus} = foo(commands);
     tabs.push(tab);
+    allMenus = allMenus.concat(menus);
     dataLoaders = dataLoaders.concat(loaders);
     perspectiveInstances = perspectiveInstances.concat(perspectives);
   }
@@ -49,7 +47,6 @@ function main(): void {
 
   window.onresize = () => { main.update(); };
   Widget.attach(header, document.body);
-  Widget.attach(bar, document.body);
   Widget.attach(main, document.body);
 
 }
