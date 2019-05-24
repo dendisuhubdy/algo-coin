@@ -22,13 +22,16 @@ function buildMarketDataTab(commands: CommandRegistry): ITab {
   const bidask = new PerspectiveDataLoader("Orders");
   bidask.title.closable = true;
 
+  const test = new Panel();
+  test.title.closable = true;
+
   const dataLoader = new DataLoader([trades], "/api/json/v1/messages", {pair: "BTCUSD", type: "TRADE"});
   const bidLoader = new DataLoader([bidask], "/api/json/v1/orders", {pair: "BTCUSD", type: "CHANGE"});
 
   commands.addCommand(COMMANDS.LIVEDATA_TRADES, {
     execute: () => {
       marketData.addWidget(trades);
-      marketData.selectWidget(trades);
+      marketData.activateWidget(trades);
     },
     iconClass: COMMAND_ICONS.LIVEDATA_TRADES,
     label: "Trades",
@@ -38,8 +41,8 @@ function buildMarketDataTab(commands: CommandRegistry): ITab {
 
   commands.addCommand(COMMANDS.LIVEDATA_ORDERBOOK, {
     execute: () => {
-      marketData.addWidget(bidask);
-      marketData.selectWidget(bidask);
+      marketData.addWidget(test);
+      marketData.activateWidget(test);
     },
     iconClass: COMMAND_ICONS.LIVEDATA_ORDERBOOK,
     label: "Order Book",
