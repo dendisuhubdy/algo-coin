@@ -1,5 +1,4 @@
 from setuptools import setup, find_packages
-from distutils.extension import Extension
 from codecs import open
 import os
 import os.path
@@ -8,15 +7,6 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
-
-sources = []
-outputs = []
-for path, subdirs, files in os.walk('algocoin/src'):
-    for name in files:
-        fp = os.path.join(path, name)
-        if fp.endswith('cpp'):
-            outputs.append(fp.replace('.cpp', '').replace('/src', ''))
-            sources.append(fp)
 
 with open(os.path.join(here, 'requirements.txt'), encoding='utf-8') as f:
     requires = [s for s in f.read().split('\n') if not s.startswith('-e')]
@@ -55,12 +45,4 @@ setup(
             'algocoin=algocoin:main',
         ],
     },
-
-    ext_modules=[
-        # Extension('algocoin/_extension', include_dirs=['algocoin/include'], sources=['algocoin/src/test.cpp'], libraries=['boost_python']),
-        Extension(x,
-                  include_dirs=["algocoin/include"],
-                  sources=[y],
-                  libraries=["boost_python"]) for x, y in zip(outputs, sources)
-    ]
 )
