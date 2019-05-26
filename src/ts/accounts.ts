@@ -11,7 +11,6 @@ function buildAccountsTab(commands: CommandRegistry): ITab {
 
   const accountsList = new PerspectiveDataLoader("Accounts");
   accounts.addWidget(accountsList);
-  console.log('here');
   accountsList.title.closable = true;
   const accountsLoader = new DataLoader([accountsList], "/api/json/v1/accounts");
 
