@@ -19,14 +19,7 @@ function buildMarketDataTab(commands: CommandRegistry): ITab {
   const trades = new PerspectiveDataLoader("Trades");
   trades.title.closable = true;
 
-  const bidask = new PerspectiveDataLoader("Orders");
-  bidask.title.closable = true;
-
-  const test = new Panel();
-  test.title.closable = true;
-
-  const dataLoader = new DataLoader([trades], "/api/json/v1/messages", {pair: "BTCUSD", type: "TRADE"});
-  const bidLoader = new DataLoader([bidask], "/api/json/v1/orders", {pair: "BTCUSD", type: "CHANGE"});
+  const dataLoader = new DataLoader([trades], "/api/json/v1/trades", {});
 
   commands.addCommand(COMMANDS.LIVEDATA_TRADES, {
     execute: () => {
@@ -39,17 +32,6 @@ function buildMarketDataTab(commands: CommandRegistry): ITab {
   });
   liveMenu.addItem({ command: COMMANDS.LIVEDATA_TRADES});
 
-  commands.addCommand(COMMANDS.LIVEDATA_ORDERBOOK, {
-    execute: () => {
-      marketData.addWidget(test);
-      marketData.activateWidget(test);
-    },
-    iconClass: COMMAND_ICONS.LIVEDATA_ORDERBOOK,
-    label: "Order Book",
-    mnemonic: 2,
-  });
-  liveMenu.addItem({ command: COMMANDS.LIVEDATA_ORDERBOOK});
-
   const historicalMenu = new Menu({commands});
   historicalMenu.title.label = "Historical";
 
@@ -58,5 +40,5 @@ function buildMarketDataTab(commands: CommandRegistry): ITab {
   marketDataContainer.addWidget(bar);
   marketDataContainer.addWidget(marketData);
 
-  return {tab: marketDataContainer, loaders: [dataLoader, bidLoader], perspectives: [trades, bidask], menus: []};
+  return {tab: marketDataContainer, loaders: [dataLoader], perspectives: [trades], menus: []};
 }
