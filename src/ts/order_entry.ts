@@ -1,7 +1,7 @@
-import {SplitPanel, Widget} from "@phosphor/widgets";
 // tslint:disable: no-namespace
 // tslint:disable: max-classes-per-file
 import "!!style-loader!css-loader!less-loader!../src/style/order_entry.less";
+import {SplitPanel, Widget} from "@phosphor/widgets";
 
 export
 class BuySellPane extends Widget {
@@ -39,12 +39,12 @@ export
 class OrderEntry extends SplitPanel {
     constructor() {
         super();
-        let sp = new SplitPanel({orientation: "vertical"});
+        const sp = new SplitPanel({orientation: "vertical"});
         sp.addWidget(new TradeChartPane());
         sp.addWidget(new OrderBookPane());
         this.addWidget(sp);
 
-        let sp2 = new SplitPanel({orientation: "vertical"});
+        const sp2 = new SplitPanel({orientation: "vertical"});
         sp2.addWidget(new BuySellPane());
         sp2.addWidget(new MyOrdersPane());
         this.addWidget(sp2);
@@ -64,42 +64,40 @@ namespace Private {
         const div = document.createElement("div");
         div.classList.add("order-entry");
 
-        let exchangeSelect = document.createElement("select");
-        let exchangeSelectLabel = document.createElement("label");
+        const exchangeSelect = document.createElement("select");
+        const exchangeSelectLabel = document.createElement("label");
         exchangeSelectLabel.textContent = "Exchange";
 
-        let assetSelect = document.createElement("select");
-        let assetSelectLabel = document.createElement("label");
+        const assetSelect = document.createElement("select");
+        const assetSelectLabel = document.createElement("label");
         assetSelectLabel.textContent = "Asset";
 
-        let orderTypeSelect = document.createElement("select");
-        let orderTypeSelectLabel = document.createElement("label");
+        const orderTypeSelect = document.createElement("select");
+        const orderTypeSelectLabel = document.createElement("label");
         orderTypeSelectLabel.textContent = "Order Type";
 
-        let orderAdvancedTypeSelect = document.createElement("select");
-        let orderAdvancedTypeSelectLabel = document.createElement("label");
+        const orderAdvancedTypeSelect = document.createElement("select");
+        const orderAdvancedTypeSelectLabel = document.createElement("label");
         orderAdvancedTypeSelectLabel.textContent = "Advanced Options";
 
-        let quantityInput = document.createElement("input");
+        const quantityInput = document.createElement("input");
         quantityInput.type = "number";
-        let quantityInputLabel = document.createElement("label");
+        const quantityInputLabel = document.createElement("label");
         quantityInputLabel.textContent = "Quantity";
 
-        let priceInput = document.createElement("input");
+        const priceInput = document.createElement("input");
         priceInput.type = "number";
-        let priceInputLabel = document.createElement("label");
+        const priceInputLabel = document.createElement("label");
         priceInputLabel.textContent = "Price";
 
-
-        let buyButton = document.createElement("button");
+        const buyButton = document.createElement("button");
         buyButton.textContent = "BUY";
-        let sellButton = document.createElement("button");
+        const sellButton = document.createElement("button");
         sellButton.textContent = "SELL";
 
-        let buttonDiv = document.createElement("div");
+        const buttonDiv = document.createElement("div");
         buttonDiv.appendChild(buyButton);
         buttonDiv.appendChild(sellButton);
-
 
         div.appendChild(exchangeSelectLabel);
         div.appendChild(exchangeSelect);
