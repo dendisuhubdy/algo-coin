@@ -5,6 +5,7 @@ import {DataLoader} from "phosphor-perspective-utils/data";
 import {Header} from "phosphor-perspective-utils/header";
 import {hideLoader, showLoader} from "phosphor-perspective-utils/loader";
 import {buildMarketDataTab} from "./market_data";
+import {buildOrderEntryTab} from "./orders";
 import {buildReferenceTab} from "./reference";
 import {buildStrategiesTab} from "./strategies";
 
@@ -24,7 +25,7 @@ function main(): void {
   let dataLoaders = [] as DataLoader[];
   let perspectiveInstances = [] as PerspectiveWidget[];
 
-  for (const foo of [buildReferenceTab, buildMarketDataTab, buildStrategiesTab]) {
+  for (const foo of [buildReferenceTab, buildMarketDataTab, buildStrategiesTab, buildOrderEntryTab]) {
     const {tab, loaders, perspectives, menus} = foo(commands);
     tabs.push(tab);
     allMenus = allMenus.concat(menus);
