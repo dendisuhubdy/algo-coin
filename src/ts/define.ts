@@ -1,11 +1,13 @@
 export const APIS = {
-    ACCOUNTS: "/api/json/v1/accounts",
-    EXCHANGES: "/api/json/v1/exchanges",
-    INSTRUMENTS: "/api/json/v1/instruments",
-    MYORDERS: "/api/json/v1/myorders",
-    MYTRADES: "/api/json/v1/mytrades",
-    STRATEGIES: "/api/json/v1/strategies",
-    TRADES: "/api/json/v1/trades",
+    ACCOUNTS: "/api/v1/json/accounts",
+    EXCHANGES: "/api/v1/json/exchanges",
+    INSTRUMENTS: "/api/v1/json/instruments",
+    MYORDERS: "/api/v1/json/myorders",
+    MYTRADES: "/api/v1/json/mytrades",
+    STRATEGIES: "/api/v1/json/strategies",
+    STRATEGY_TRADE_REQUESTS: "/api/v1/json/strategy-trade-requests",
+    STRATEGY_TRADE_RESPONSES: "/api/v1/json/strategy-trade-responses",
+    TRADES: "/api/v1/json/trades",
 };
 
 export const COMMANDS = {
