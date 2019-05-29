@@ -123,20 +123,20 @@ TODO
 
 ## Screenshots
 ### Backtest
-[![](docs/img/bt.png)]
+[![](docs/img/bt.png)]()
 
 ### UI
 #### Accounts overview
-[![](docs/img/ui1.png)]
+[![](docs/img/ui1.png)]()
 
 #### Instrument registry
-[![](docs/img/ui2.png)]
+[![](docs/img/ui2.png)]()
 
 #### Live trades
-[![](docs/img/ui3.png)]
+[![](docs/img/ui3.png)]()
 
 #### Last price per asset/exchange
-[![](docs/img/ui4.png)]
+[![](docs/img/ui4.png)]()
 
 #### Strategy trade requests/trade results
-[![](docs/img/ui5.png)]
+[![](docs/img/ui5.png)]()
