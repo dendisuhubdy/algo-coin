@@ -22,19 +22,35 @@ function buildMarketDataTab(commands: CommandRegistry): ITab {
   const trades = new PerspectiveDataLoader("Trades");
   trades.title.closable = true;
 
-  const dataLoader = new DataLoader([trades], APIS.TRADES, {});
+  const lastPrice = new PerspectiveDataLoader("Last Price");
+  lastPrice.title.closable = true;
+
+  const tradesDataLoader = new DataLoader([trades], APIS.TRADES, {});
+  const lastPriceDataLoader = new DataLoader([lastPrice], APIS.LAST_PRICE, {});
 
   /** trades monitored by backend */
   commands.addCommand(COMMANDS.LIVEDATA_TRADES, {
     execute: () => {
       marketData.addWidget(trades);
-      marketData.activateWidget(trades);
+      // marketData.activateWidget(trades);
     },
     iconClass: COMMAND_ICONS.LIVEDATA_TRADES,
     label: "Trades",
     mnemonic: 2,
   });
   liveMenu.addItem({ command: COMMANDS.LIVEDATA_TRADES});
+
+  /** Last trades processed by system */
+  commands.addCommand(COMMANDS.LIVEDATA_LAST_PRICE, {
+    execute: () => {
+      marketData.addWidget(lastPrice);
+      // marketData.activateWidget(lastTrades);
+    },
+    iconClass: COMMAND_ICONS.LIVEDATA_TRADES,
+    label: "Last Trades",
+    mnemonic: 2,
+  });
+  liveMenu.addItem({ command: COMMANDS.LIVEDATA_LAST_PRICE});
 
   const tradesMenu = new Menu({commands});
   tradesMenu.title.label = "Trades - Exchange";
@@ -63,5 +79,8 @@ function buildMarketDataTab(commands: CommandRegistry): ITab {
   marketDataContainer.addWidget(bar);
   marketDataContainer.addWidget(marketData);
 
-  return {tab: marketDataContainer, loaders: [dataLoader], perspectives: [trades], menus: []};
+  return {loaders: [tradesDataLoader, lastPriceDataLoader],
+          menus: [],
+          perspectives: [trades, lastPrice],
+          tab: marketDataContainer};
 }

@@ -2,6 +2,7 @@ export const APIS = {
     ACCOUNTS: "/api/v1/json/accounts",
     EXCHANGES: "/api/v1/json/exchanges",
     INSTRUMENTS: "/api/v1/json/instruments",
+    LAST_PRICE: "/api/v1/json/last-price-all",
     MYORDERS: "/api/v1/json/myorders",
     MYTRADES: "/api/v1/json/mytrades",
     STRATEGIES: "/api/v1/json/strategies",
@@ -13,6 +14,7 @@ export const APIS = {
 export const COMMANDS = {
     HISTORICALDATA_OHLCV: "marketData:historicalDta:ohlcv",
     LIVEDATA_ORDERBOOK: "marketData:liveData:orderbook",
+    LIVEDATA_LAST_PRICE: "marketData:liveData:lastPrice",
     LIVEDATA_TRADES: "marketData:liveData:trades",
     LIVEDATA_TRADES_BY_EXCH_ASSET: "marketData:liveData:tradesByExchangeAndAsset",
 };
