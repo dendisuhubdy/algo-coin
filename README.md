@@ -120,3 +120,14 @@ When you want to run an algorithm live, but don't yet trust that it can make mon
 TODO
 
 ---
+
+## Screenshots
+### Backtest
+[![](docs/img/bt.png)]
+
+### UI
+[![](docs/img/ui1.png)]
+[![](docs/img/ui2.png)]
+[![](docs/img/ui3.png)]
+[![](docs/img/ui4.png)]
+[![](docs/img/ui5.png)]
