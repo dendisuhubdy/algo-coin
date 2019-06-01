@@ -16,7 +16,7 @@ AlgoCoin is a python library for writing trading algorithms. It is designed usin
 Lightweight, extensible program for algorithmically trading cryptocurrencies and derivatives across multiple exchanges. 
 
 ### System Architecture
-AlgoCoin is an event based trading system written in python. It is built on [`aat`](https://github.com/timkpaine/aat).
+AlgoCoin is an event based trading system written in python. It is built on [aat](https://github.com/timkpaine/aat).
 
 ### Markets
 AlgoCoin will support all exchanges and currencies covered by [ccxt](https://github.com/ccxt/ccxt)
@@ -38,7 +38,7 @@ python setup.py install
 ```
 
 ## Documentation
-Refer to the documentation for [`aat`](https://github.com/timkpaine/aat).
+Refer to the documentation for [aat](https://github.com/timkpaine/aat).
 
 ## Screenshots
 ### Backtest
