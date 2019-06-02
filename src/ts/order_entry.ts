@@ -2,12 +2,48 @@
 // tslint:disable: max-classes-per-file
 import "!!style-loader!css-loader!less-loader!../src/style/order_entry.less";
 import {SplitPanel, Widget} from "@phosphor/widgets";
+import {exchanges, instruments} from "./utils";
 
 export
 class BuySellPane extends Widget {
     constructor() {
         super({node: Private.buildBuySellNode()});
         this.node.style.backgroundColor = "cyan";
+
+        exchanges().then((res) => {
+            for (const val of res as any) {
+                let option = document.createElement('option');
+                option.value = val.name;
+                option.text = val.name;
+                this.exchangesNode().appendChild(option);
+            }
+        });
+
+        const changeInstruments = () => {
+            instruments(this.exchangesNode().value).then((res) => {
+                const instnode = this.instrumentNode();
+                while(instnode.lastChild){
+                    instnode.removeChild(instnode.lastChild);
+                }
+                for (const val of res as any) {
+                    let option = document.createElement('option');
+                    option.value = val.underlying;
+                    option.text = val.underlying;
+                    instnode.appendChild(option);
+                }
+            });
+        }
+
+        this.exchangesNode().addEventListener('change', changeInstruments);
+        changeInstruments();
+    }
+
+    exchangesNode(): HTMLSelectElement {
+        return this.node.querySelectorAll('select')[0];
+    }
+
+    instrumentNode(): HTMLSelectElement {
+        return this.node.querySelectorAll('select')[1];
     }
 }
 
@@ -76,17 +112,36 @@ namespace Private {
         const orderTypeSelectLabel = document.createElement("label");
         orderTypeSelectLabel.textContent = "Order Type";
 
+        const market = document.createElement('option');
+        market.value = 'MARKET';
+        market.text = 'MARKET';
+        const limit = document.createElement('option');
+        limit.value = 'LIMIT';
+        limit.text = 'LIMIT';
+        orderTypeSelect.appendChild(market);
+        orderTypeSelect.appendChild(limit);
+
         const orderAdvancedTypeSelect = document.createElement("select");
         const orderAdvancedTypeSelectLabel = document.createElement("label");
         orderAdvancedTypeSelectLabel.textContent = "Advanced Options";
+
+        for (let x of ['NONE', 'FILL_OR_KILL', 'IMMEDIATE_OR_CANCEL']){
+            let option = document.createElement('option');
+            option.value = x
+            option.text = x;
+            orderAdvancedTypeSelect.appendChild(option);
+        }
 
         const quantityInput = document.createElement("input");
         quantityInput.type = "number";
         const quantityInputLabel = document.createElement("label");
         quantityInputLabel.textContent = "Quantity";
+        quantityInput.defaultValue = "0.0";
 
         const priceInput = document.createElement("input");
         priceInput.type = "number";
+        priceInput.defaultValue = "0.0";
+
         const priceInputLabel = document.createElement("label");
         priceInputLabel.textContent = "Price";
 
@@ -98,6 +153,7 @@ namespace Private {
         const buttonDiv = document.createElement("div");
         buttonDiv.appendChild(buyButton);
         buttonDiv.appendChild(sellButton);
+
 
         div.appendChild(exchangeSelectLabel);
         div.appendChild(exchangeSelect);

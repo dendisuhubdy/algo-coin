@@ -4,6 +4,8 @@ import {Menu, Widget} from "@phosphor/widgets";
 import {DataLoader} from "phosphor-perspective-utils/data";
 import {APIS} from "./define";
 
+const esc = encodeURIComponent;
+
 export interface ITab {
     tab: Widget; // Phosphor Widget
     loaders: DataLoader[]; // Data Loaders
@@ -12,9 +14,11 @@ export interface ITab {
 }
 
 export
-function fetcher(url: string): Promise<{[key: string]: string}> {
+function fetcher(url: string, args:{[key:string]:string} = {}): Promise<{[key: string]: string}> {
     return new Promise<{[key: string]: string}>((resolve) => {
-        fetch(url, {method: "GET"})
+        fetch(url + "?" + Object.keys(args)
+              .map(k => esc(k) + '=' + esc(args[k]))
+              .join('&'), {method: "GET"})
             .then((response) => response.json())
             .then((json) => resolve(json.data));
         },
@@ -27,8 +31,12 @@ function exchanges(): Promise<{[key: string]: string}> {
 }
 
 export
-function instruments(): Promise<{[key: string]: string}> {
+function instruments(exchange?:string): Promise<{[key: string]: string}> {
+  if(exchange !== undefined){
+    return fetcher(APIS.INSTRUMENTS, {exchange: exchange});
+  } else {
     return fetcher(APIS.INSTRUMENTS);
+  }
 }
 
 export
