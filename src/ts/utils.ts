@@ -45,7 +45,7 @@ function exchanges_and_instruments(): Promise<{[key: string]: string[]}> {
         exchanges().then((res) => {
             const exch = [] as string[];
             for (const val of res as any) {
-                exch.push(val.name);
+                exch.push(val.exchange);
             }
             instruments().then((res2) => {
                 const inst = [] as string[];
