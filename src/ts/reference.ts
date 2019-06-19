@@ -15,13 +15,11 @@ function buildReferenceTab(commands: CommandRegistry): ITab {
   const accountsLoader = new DataLoader([accountsList], APIS.ACCOUNTS);
 
   const instrumentList = new PerspectiveDataLoader("Instruments");
-  // accounts.addWidget(instrumentList, {ref: accountsList, mode: 'split-right'});
-  reference.addWidget(instrumentList);
+  reference.addWidget(instrumentList, {ref: accountsList, mode: 'split-right'});
   const instrumentsLoader = new DataLoader([instrumentList], APIS.INSTRUMENTS);
 
   const exchangeList = new PerspectiveDataLoader("Exchanges");
-  // accounts.addWidget(exchangeList, {ref: instrumentList, mode: 'split-right'});
-  reference.addWidget(exchangeList);
+  reference.addWidget(exchangeList, {ref: instrumentList, mode: 'split-bottom'});
   const exchangeLoader = new DataLoader([exchangeList], APIS.EXCHANGES);
 
   return {loaders: [accountsLoader, instrumentsLoader, exchangeLoader],

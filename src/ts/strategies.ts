@@ -25,11 +25,11 @@ function buildStrategiesTab(commands: CommandRegistry): ITab {
   sp.addWidget(stratResponseList);
   const stratResponseLoader = new DataLoader([stratResponseList], APIS.STRATEGY_TRADE_RESPONSES);
 
-  strategies.addWidget(sp);
+  strategies.addWidget(sp, {ref: stratsList, mode: 'split-right'});
 
   const backtest = new DockPanel();
   backtest.title.label = "Backtest";
-  strategies.addWidget(backtest);
+  strategies.addWidget(backtest, {ref: stratsList, mode: 'split-bottom'});
 
   return {loaders: [stratsLoader, stratRequestLoader, stratResponseLoader],
           menus: [],
