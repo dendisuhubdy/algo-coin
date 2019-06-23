@@ -12,7 +12,7 @@ class BuySellPane extends Widget {
 
         exchanges().then((res) => {
             for (const val of res as any) {
-                let option = document.createElement('option');
+                const option = document.createElement("option");
                 option.value = val.name;
                 option.text = val.name;
                 this.exchangesNode().appendChild(option);
@@ -22,28 +22,28 @@ class BuySellPane extends Widget {
         const changeInstruments = () => {
             instruments(this.exchangesNode().value).then((res) => {
                 const instnode = this.instrumentNode();
-                while(instnode.lastChild){
+                while (instnode.lastChild) {
                     instnode.removeChild(instnode.lastChild);
                 }
                 for (const val of res as any) {
-                    let option = document.createElement('option');
+                    const option = document.createElement("option");
                     option.value = val.underlying;
                     option.text = val.underlying;
                     instnode.appendChild(option);
                 }
             });
-        }
+        };
 
-        this.exchangesNode().addEventListener('change', changeInstruments);
+        this.exchangesNode().addEventListener("change", changeInstruments);
         changeInstruments();
     }
 
-    exchangesNode(): HTMLSelectElement {
-        return this.node.querySelectorAll('select')[0];
+    public exchangesNode(): HTMLSelectElement {
+        return this.node.querySelectorAll("select")[0];
     }
 
-    instrumentNode(): HTMLSelectElement {
-        return this.node.querySelectorAll('select')[1];
+    public instrumentNode(): HTMLSelectElement {
+        return this.node.querySelectorAll("select")[1];
     }
 }
 
@@ -112,12 +112,12 @@ namespace Private {
         const orderTypeSelectLabel = document.createElement("label");
         orderTypeSelectLabel.textContent = "Order Type";
 
-        const market = document.createElement('option');
-        market.value = 'MARKET';
-        market.text = 'MARKET';
-        const limit = document.createElement('option');
-        limit.value = 'LIMIT';
-        limit.text = 'LIMIT';
+        const market = document.createElement("option");
+        market.value = "MARKET";
+        market.text = "MARKET";
+        const limit = document.createElement("option");
+        limit.value = "LIMIT";
+        limit.text = "LIMIT";
         orderTypeSelect.appendChild(market);
         orderTypeSelect.appendChild(limit);
 
@@ -125,9 +125,9 @@ namespace Private {
         const orderAdvancedTypeSelectLabel = document.createElement("label");
         orderAdvancedTypeSelectLabel.textContent = "Advanced Options";
 
-        for (let x of ['NONE', 'FILL_OR_KILL', 'IMMEDIATE_OR_CANCEL']){
-            let option = document.createElement('option');
-            option.value = x
+        for (const x of ["NONE", "FILL_OR_KILL", "IMMEDIATE_OR_CANCEL"]) {
+            const option = document.createElement("option");
+            option.value = x;
             option.text = x;
             orderAdvancedTypeSelect.appendChild(option);
         }
@@ -153,7 +153,6 @@ namespace Private {
         const buttonDiv = document.createElement("div");
         buttonDiv.appendChild(buyButton);
         buttonDiv.appendChild(sellButton);
-
 
         div.appendChild(exchangeSelectLabel);
         div.appendChild(exchangeSelect);

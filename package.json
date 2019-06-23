@@ -8,7 +8,7 @@
     "@phosphor/messaging": "^1.2.2",
     "@phosphor/widgets": "^1.6.0",
     "es6-promise": "^4.0.5",
-    "phosphor-perspective-utils": "^0.0.4"
+    "phosphor-perspective-utils": "^0.1.0"
   },
   "devDependencies": {
     "@finos/perspective-webpack-plugin": "^0.3.0",

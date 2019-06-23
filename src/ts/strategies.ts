@@ -1,7 +1,7 @@
 import {CommandRegistry} from "@phosphor/commands";
 import {DockPanel, SplitPanel} from "@phosphor/widgets";
 import {DataLoader, PerspectiveDataLoader} from "phosphor-perspective-utils/data";
-import {APIS} from "./define";
+import {APIS, INTERVAL} from "./define";
 import {ITab} from "./utils";
 
 export
@@ -19,17 +19,18 @@ function buildStrategiesTab(commands: CommandRegistry): ITab {
 
   const stratRequestList = new PerspectiveDataLoader("Trade Reqs");
   sp.addWidget(stratRequestList);
-  const stratRequestLoader = new DataLoader([stratRequestList], APIS.STRATEGY_TRADE_REQUESTS);
+  const stratRequestLoader = new DataLoader([stratRequestList], APIS.STRATEGY_TRADE_REQUESTS, {}, INTERVAL.TEN_SECONDS);
 
   const stratResponseList = new PerspectiveDataLoader("Trade Resps");
   sp.addWidget(stratResponseList);
-  const stratResponseLoader = new DataLoader([stratResponseList], APIS.STRATEGY_TRADE_RESPONSES);
+// tslint:disable-next-line: max-line-length
+  const stratResponseLoader = new DataLoader([stratResponseList], APIS.STRATEGY_TRADE_RESPONSES, {}, INTERVAL.TEN_SECONDS);
 
-  strategies.addWidget(sp, {ref: stratsList, mode: 'split-right'});
+  strategies.addWidget(sp, {ref: stratsList, mode: "split-right"});
 
   const backtest = new DockPanel();
   backtest.title.label = "Backtest";
-  strategies.addWidget(backtest, {ref: stratsList, mode: 'split-bottom'});
+  strategies.addWidget(backtest, {ref: stratsList, mode: "split-bottom"});
 
   return {loaders: [stratsLoader, stratRequestLoader, stratResponseLoader],
           menus: [],

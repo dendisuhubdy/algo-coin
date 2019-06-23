@@ -1,7 +1,7 @@
 import {CommandRegistry} from "@phosphor/commands";
 import {DockPanel, Menu, MenuBar, Panel} from "@phosphor/widgets";
 import {DataLoader, PerspectiveDataLoader} from "phosphor-perspective-utils/data";
-import {APIS, COMMAND_ICONS, COMMANDS} from "./define";
+import {APIS, COMMAND_ICONS, COMMANDS, INTERVAL} from "./define";
 import {build_menu_commands, exchanges_and_instruments, ITab} from "./utils";
 
 export
@@ -25,8 +25,8 @@ function buildMarketDataTab(commands: CommandRegistry): ITab {
   const lastPrice = new PerspectiveDataLoader("Last Price");
   lastPrice.title.closable = true;
 
-  const tradesDataLoader = new DataLoader([trades], APIS.TRADES, {});
-  const lastPriceDataLoader = new DataLoader([lastPrice], APIS.LAST_PRICE, {});
+  const tradesDataLoader = new DataLoader([trades], APIS.TRADES, {}, INTERVAL.TEN_SECONDS);
+  const lastPriceDataLoader = new DataLoader([lastPrice], APIS.LAST_PRICE, {}, INTERVAL.TEN_SECONDS);
 
   /** trades monitored by backend */
   commands.addCommand(COMMANDS.LIVEDATA_TRADES, {

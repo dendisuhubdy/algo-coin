@@ -14,11 +14,11 @@ export interface ITab {
 }
 
 export
-function fetcher(url: string, args:{[key:string]:string} = {}): Promise<{[key: string]: string}> {
+function fetcher(url: string, args: {[key: string]: string} = {}): Promise<{[key: string]: string}> {
     return new Promise<{[key: string]: string}>((resolve) => {
         fetch(url + "?" + Object.keys(args)
-              .map(k => esc(k) + '=' + esc(args[k]))
-              .join('&'), {method: "GET"})
+              .map((k) => esc(k) + "=" + esc(args[k]))
+              .join("&"), {method: "GET"})
             .then((response) => response.json())
             .then((json) => resolve(json.data));
         },
@@ -31,9 +31,9 @@ function exchanges(): Promise<{[key: string]: string}> {
 }
 
 export
-function instruments(exchange?:string): Promise<{[key: string]: string}> {
-  if(exchange !== undefined){
-    return fetcher(APIS.INSTRUMENTS, {exchange: exchange});
+function instruments(exchange?: string): Promise<{[key: string]: string}> {
+  if (exchange !== undefined) {
+    return fetcher(APIS.INSTRUMENTS, {exchange});
   } else {
     return fetcher(APIS.INSTRUMENTS);
   }
@@ -45,7 +45,7 @@ function exchanges_and_instruments(): Promise<{[key: string]: string[]}> {
         exchanges().then((res) => {
             const exch = [] as string[];
             for (const val of res as any) {
-                exch.push(val.exchange);
+                exch.push(val.name);
             }
             instruments().then((res2) => {
                 const inst = [] as string[];
@@ -67,6 +67,8 @@ function build_menu_commands(res: {[key: string]: string[]},
 // tslint:disable-next-line: no-empty
                              execute= (exchange: string, instrument: string) => {},
     ): void {
+    const nodupes = [];
+
     for (const exchange of res.exchanges) {
 
       const menu = new Menu({commands});
@@ -75,15 +77,18 @@ function build_menu_commands(res: {[key: string]: string[]},
 
       for (const instrument of res.instruments) {
         const cmd = baseCommand + ":" + exchange + ":" + instrument;
-        commands.addCommand(cmd, {
-          execute: () => {
-            execute(exchange, instrument);
-          },
-          iconClass: baseIcon,
-          label: instrument,
-          mnemonic: 2,
-        });
-        menu.addItem({command: cmd});
+        if (nodupes.indexOf(cmd) >= 0) {
+          nodupes.push(cmd);
+          commands.addCommand(cmd, {
+            execute: () => {
+              execute(exchange, instrument);
+            },
+            iconClass: baseIcon,
+            label: instrument,
+            mnemonic: 2,
+          });
+          menu.addItem({command: cmd});
+        }
       }
     }
 }
